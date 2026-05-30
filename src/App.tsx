@@ -258,8 +258,16 @@ export default function App() {
       // Determine the final connection URL (direct vs proxied)
       let finalWsUrl = b.wsUrl;
       if (b.useProxy) {
-        const localProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        finalWsUrl = `${localProtocol}//${window.location.host}/api/proxy?target=${encodeURIComponent(b.wsUrl)}`;
+        const customProxyUrl = (import.meta as any).env.VITE_EXTERNAL_PROXY_URL;
+        if (customProxyUrl) {
+          const baseProxy = customProxyUrl.replace(/^http/, 'ws');
+          const formattedProxy = baseProxy.startsWith('ws') ? baseProxy : `wss://${baseProxy}`;
+          const suffix = formattedProxy.endsWith('/api/proxy') ? '' : '/api/proxy';
+          finalWsUrl = `${formattedProxy}${suffix}?target=${encodeURIComponent(b.wsUrl)}`;
+        } else {
+          const localProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          finalWsUrl = `${localProtocol}//${window.location.host}/api/proxy?target=${encodeURIComponent(b.wsUrl)}`;
+        }
         addLog(`Proxy Routing: ${finalWsUrl}`, 'info');
       }
 
