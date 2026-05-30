@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import * as mqtt from 'mqtt';
+import mqtt from 'mqtt';
 import { 
   Cpu, 
   Wifi, 
