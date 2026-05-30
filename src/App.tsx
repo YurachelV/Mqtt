@@ -248,8 +248,18 @@ export default function App() {
         options.password = b.pass;
       }
 
-      // Instantiate MQTT instance
-      const client = mqtt.connect(b.wsUrl, options);
+      // Instantiate MQTT instance with robust fallback checks for different export structures at runtime
+      let client: mqtt.MqttClient;
+      if (mqtt && typeof (mqtt as any).connect === 'function') {
+        client = (mqtt as any).connect(b.wsUrl, options);
+      } else if (mqtt && (mqtt as any).default && typeof (mqtt as any).default.connect === 'function') {
+        client = (mqtt as any).default.connect(b.wsUrl, options);
+      } else if (typeof mqtt === 'function') {
+        client = (mqtt as any)(b.wsUrl, options);
+      } else {
+        const exportedKeys = mqtt ? Object.keys(mqtt).join(', ') : 'null';
+        throw new Error(`MQTT module resolved to ${typeof mqtt} (keys: [${exportedKeys}]), but no connect function was found.`);
+      }
       mqttClientRef.current = client;
 
       client.on('connect', () => {
