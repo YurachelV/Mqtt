@@ -195,7 +195,7 @@ export default function BrokerPanel({
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                     <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium">WS URL Endpoint</label>
+                      <label className="text-slate-500 font-medium font-semibold">WS URL Endpoint</label>
                       <input
                         id={`input-wsurl-broker-${broker.id}`}
                         type="text"
@@ -204,18 +204,40 @@ export default function BrokerPanel({
                         className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-2 rounded-lg font-mono text-slate-200"
                         placeholder="wss://host:port/path"
                       />
+                      {broker.id === 2 && (
+                        <span className="text-[10px] text-teal-400 font-medium mt-0.5 leading-tight">
+                          * Gunakan <code className="bg-teal-950/40 px-1 py-0.5 rounded text-teal-300">tcps://node02.myqtthub.com:8883</code> via Proxy agar web ini menjembatani koneksi TLS aman langsung ke MyQTTHub!
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 font-medium font-semibold">Username (Format vhost:user)</label>
+                      <label className="text-slate-500 font-medium font-semibold">
+                        {broker.id === 1 
+                          ? 'Username (Format vhost:user)' 
+                          : broker.id === 2 
+                            ? 'Username (Format device@domain)' 
+                            : 'Username'}
+                      </label>
                       <input
                         id={`input-user-broker-${broker.id}`}
                         type="text"
                         value={customUser}
                         onChange={(e) => setCustomUser(e.target.value)}
                         className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-2 rounded-lg font-mono text-slate-200"
-                        placeholder="Username"
+                        placeholder={
+                          broker.id === 1 
+                            ? 'vhost:username' 
+                            : broker.id === 2 
+                              ? 'ESP@domain_anda' 
+                              : 'Username'
+                        }
                       />
+                      {broker.id === 2 && (
+                        <span className="text-[10px] text-amber-450 font-medium mt-0.5 leading-tight">
+                          * Wajib menggunakan format <code className="bg-amber-950/40 px-1 py-0.5 rounded text-amber-300">device@domain_anda</code> (domain_anda adalah domain/realm MyQTTHub Anda).
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-1">

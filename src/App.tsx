@@ -47,9 +47,9 @@ const INITIAL_BROKERS: BrokerConfig[] = [
     name: 'Broker 2 — MyQTTHub',
     server: 'node02.myqtthub.com',
     port: 8883,
-    wsUrl: 'wss://node02.myqtthub.com:443', // Websocket secure
-    user: 'ESP',
-    pass: 'a',
+    wsUrl: 'tcps://node02.myqtthub.com:8883', // TLS raw secure port mapped dynamically via Proxy
+    user: 'ESP@domain_anda',
+    pass: 'password_anda',
     clientId: 'WebClientHub_' + Math.random().toString(16).substring(2, 6),
     vhost: null,
     useProxy: true
