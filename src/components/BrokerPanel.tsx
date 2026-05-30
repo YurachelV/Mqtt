@@ -14,7 +14,7 @@ interface BrokerPanelProps {
   connectionState: 'connected' | 'disconnected' | 'connecting';
   onSwitchHardwareBroker: (id: number) => void;
   onSwitchWebBroker: (id: number) => void;
-  onUpdateBrokerWSS: (id: number, wsUrl: string, user: string, pass: string) => void;
+  onUpdateBrokerWSS: (id: number, wsUrl: string, user: string, pass: string, clientId: string) => void;
 }
 
 export default function BrokerPanel({
@@ -30,6 +30,7 @@ export default function BrokerPanel({
   const [customWsUrl, setCustomWsUrl] = useState('');
   const [customUser, setCustomUser] = useState('');
   const [customPass, setCustomPass] = useState('');
+  const [customClientId, setCustomClientId] = useState('');
 
   const handleEditClick = (b: BrokerConfig) => {
     if (editingBrokerId === b.id) {
@@ -39,11 +40,12 @@ export default function BrokerPanel({
       setCustomWsUrl(b.wsUrl);
       setCustomUser(b.user);
       setCustomPass(b.pass);
+      setCustomClientId(b.clientId);
     }
   };
 
   const handleSaveConfig = (id: number) => {
-    onUpdateBrokerWSS(id, customWsUrl, customUser, customPass);
+    onUpdateBrokerWSS(id, customWsUrl, customUser, customPass, customClientId);
     setEditingBrokerId(null);
   };
 
@@ -125,9 +127,14 @@ export default function BrokerPanel({
                         </span>
                       )}
                     </div>
-                    <code className="text-xs text-slate-400 font-mono mt-1 block break-all">
-                      {broker.wsUrl}
-                    </code>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <code className="text-xs text-slate-400 font-mono block break-all">
+                        URI: {broker.wsUrl}
+                      </code>
+                      <code className="text-[11px] text-cyan-400/95 font-mono block">
+                        Client ID: <span className="font-bold">{broker.clientId}</span>
+                      </code>
+                    </div>
                   </div>
                 </div>
 
@@ -178,7 +185,7 @@ export default function BrokerPanel({
                     Ubah Jalur WebSocket Secure (WSS) & Kredensial
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                     <div className="flex flex-col gap-1">
                       <label className="text-slate-500 font-medium">WS URL Endpoint</label>
                       <input
@@ -212,6 +219,18 @@ export default function BrokerPanel({
                         onChange={(e) => setCustomPass(e.target.value)}
                         className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-2 rounded-lg font-mono text-slate-200"
                         placeholder="Password"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-slate-500 font-medium font-semibold">Client ID</label>
+                      <input
+                        id={`input-clientid-broker-${broker.id}`}
+                        type="text"
+                        value={customClientId}
+                        onChange={(e) => setCustomClientId(e.target.value)}
+                        className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-2 rounded-lg font-mono text-slate-200"
+                        placeholder="Client ID"
                       />
                     </div>
                   </div>

@@ -136,9 +136,9 @@ export default function App() {
     }
   };
 
-  const handleUpdateBrokerWSSSettings = (id: number, wsUrl: string, user: string, pass: string) => {
+  const handleUpdateBrokerWSSSettings = (id: number, wsUrl: string, user: string, pass: string, clientId: string) => {
     setBrokers((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, wsUrl, user, pass } : b))
+      prev.map((b) => (b.id === id ? { ...b, wsUrl, user, pass, clientId } : b))
     );
     addLog(`Parameter WebSocket Broker ${id} berhasil diperbarui!`, 'success');
   };
