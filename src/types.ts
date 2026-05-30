@@ -13,6 +13,7 @@ export interface BrokerConfig {
   pass: string;
   clientId: string;
   vhost: string | null;
+  useProxy?: boolean;
 }
 
 export interface RelayState {

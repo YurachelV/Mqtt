@@ -14,7 +14,7 @@ interface BrokerPanelProps {
   connectionState: 'connected' | 'disconnected' | 'connecting';
   onSwitchHardwareBroker: (id: number) => void;
   onSwitchWebBroker: (id: number) => void;
-  onUpdateBrokerWSS: (id: number, wsUrl: string, user: string, pass: string, clientId: string) => void;
+  onUpdateBrokerWSS: (id: number, wsUrl: string, user: string, pass: string, clientId: string, useProxy: boolean) => void;
 }
 
 export default function BrokerPanel({
@@ -31,6 +31,7 @@ export default function BrokerPanel({
   const [customUser, setCustomUser] = useState('');
   const [customPass, setCustomPass] = useState('');
   const [customClientId, setCustomClientId] = useState('');
+  const [customUseProxy, setCustomUseProxy] = useState(false);
 
   const handleEditClick = (b: BrokerConfig) => {
     if (editingBrokerId === b.id) {
@@ -41,11 +42,12 @@ export default function BrokerPanel({
       setCustomUser(b.user);
       setCustomPass(b.pass);
       setCustomClientId(b.clientId);
+      setCustomUseProxy(!!b.useProxy);
     }
   };
 
   const handleSaveConfig = (id: number) => {
-    onUpdateBrokerWSS(id, customWsUrl, customUser, customPass, customClientId);
+    onUpdateBrokerWSS(id, customWsUrl, customUser, customPass, customClientId, customUseProxy);
     setEditingBrokerId(null);
   };
 
@@ -134,6 +136,12 @@ export default function BrokerPanel({
                       <code className="text-[11px] text-cyan-400/95 font-mono block">
                         Client ID: <span className="font-bold">{broker.clientId}</span>
                       </code>
+                      {broker.useProxy && (
+                        <div className="text-[10px] text-teal-400 font-mono flex items-center gap-1.5 mt-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                          <span>Proxy Server AI Studio Aktif</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -232,6 +240,27 @@ export default function BrokerPanel({
                         className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-2 rounded-lg font-mono text-slate-200"
                         placeholder="Client ID"
                       />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 p-3 my-1 bg-cyan-950/20 border border-cyan-500/10 rounded-xl max-w-2xl">
+                    <input
+                      id={`checkbox-proxy-broker-${broker.id}`}
+                      type="checkbox"
+                      checked={customUseProxy}
+                      onChange={(e) => setCustomUseProxy(e.target.checked)}
+                      className="w-4.5 h-4.5 text-cyan-600 bg-slate-950 border-slate-800 rounded focus:ring-cyan-500 focus:ring-2 accent-cyan-500 cursor-pointer"
+                    />
+                    <div className="flex flex-col">
+                      <label 
+                        htmlFor={`checkbox-proxy-broker-${broker.id}`}
+                        className="text-xs text-slate-200 font-semibold cursor-pointer select-none"
+                      >
+                        Gunakan Proxy Server AI Studio (Sangat Direkomendasikan untuk MyQTTHub)
+                      </label>
+                      <span className="text-[10px] text-slate-500">
+                        Mengatasi pembatasan CORS, pemblokiran HTTP Mixed Content, atau pemutusan sepihak oleh browser Anda.
+                      </span>
                     </div>
                   </div>
 

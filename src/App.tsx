@@ -39,7 +39,8 @@ const INITIAL_BROKERS: BrokerConfig[] = [
     user: 'wxoeelnh:wxoeelnh', // Format vhost:user
     pass: 'BQAdo1W8qPeDlnF1O2WZ_AdUTd_uVG0x',
     clientId: 'WebClientAMQP_' + Math.random().toString(16).substring(2, 6),
-    vhost: 'wxoeelnh'
+    vhost: 'wxoeelnh',
+    useProxy: false
   },
   {
     id: 2,
@@ -50,7 +51,8 @@ const INITIAL_BROKERS: BrokerConfig[] = [
     user: 'ESP',
     pass: 'a',
     clientId: 'WebClientHub_' + Math.random().toString(16).substring(2, 6),
-    vhost: null
+    vhost: null,
+    useProxy: true
   },
   {
     id: 3,
@@ -61,7 +63,8 @@ const INITIAL_BROKERS: BrokerConfig[] = [
     user: 'Web',
     pass: 'a',
     clientId: 'WebClientCedalo_' + Math.random().toString(16).substring(2, 6),
-    vhost: null
+    vhost: null,
+    useProxy: false
   }
 ];
 
@@ -136,9 +139,9 @@ export default function App() {
     }
   };
 
-  const handleUpdateBrokerWSSSettings = (id: number, wsUrl: string, user: string, pass: string, clientId: string) => {
+  const handleUpdateBrokerWSSSettings = (id: number, wsUrl: string, user: string, pass: string, clientId: string, useProxy: boolean) => {
     setBrokers((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, wsUrl, user, pass, clientId } : b))
+      prev.map((b) => (b.id === id ? { ...b, wsUrl, user, pass, clientId, useProxy } : b))
     );
     addLog(`Parameter WebSocket Broker ${id} berhasil diperbarui!`, 'success');
   };
@@ -228,12 +231,16 @@ export default function App() {
     // Disconnect existing client
     if (mqttClientRef.current) {
       addLog('Memutuskan koneksi broker sebelumnya...', 'info');
-      mqttClientRef.current.end();
+      try {
+        mqttClientRef.current.end();
+      } catch (err) {
+        // Safe catch
+      }
     }
 
     setConnectionState('connecting');
     addLog(`[WebClientHub] Menghubungkan ke ${b.name}...`, 'info');
-    addLog(`Target WSS: ${b.wsUrl}`, 'info');
+    addLog(`Target WSS: ${b.wsUrl}${b.useProxy ? ' (via Proxy AI Studio)' : ''}`, 'info');
 
     try {
       const options: mqtt.IClientOptions = {
@@ -248,14 +255,22 @@ export default function App() {
         options.password = b.pass;
       }
 
+      // Determine the final connection URL (direct vs proxied)
+      let finalWsUrl = b.wsUrl;
+      if (b.useProxy) {
+        const localProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        finalWsUrl = `${localProtocol}//${window.location.host}/api/proxy?target=${encodeURIComponent(b.wsUrl)}`;
+        addLog(`Proxy Routing: ${finalWsUrl}`, 'info');
+      }
+
       // Instantiate MQTT instance with robust fallback checks for different export structures at runtime
       let client: mqtt.MqttClient;
       if (mqtt && typeof (mqtt as any).connect === 'function') {
-        client = (mqtt as any).connect(b.wsUrl, options);
+        client = (mqtt as any).connect(finalWsUrl, options);
       } else if (mqtt && (mqtt as any).default && typeof (mqtt as any).default.connect === 'function') {
-        client = (mqtt as any).default.connect(b.wsUrl, options);
+        client = (mqtt as any).default.connect(finalWsUrl, options);
       } else if (typeof mqtt === 'function') {
-        client = (mqtt as any)(b.wsUrl, options);
+        client = (mqtt as any)(finalWsUrl, options);
       } else {
         const exportedKeys = mqtt ? Object.keys(mqtt).join(', ') : 'null';
         throw new Error(`MQTT module resolved to ${typeof mqtt} (keys: [${exportedKeys}]), but no connect function was found.`);
