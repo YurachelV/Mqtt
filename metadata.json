@@ -1,0 +1,8 @@
+{
+  "name": "ESP32 Voice Relay & MQTT Dashboard",
+  "description": "Dashboard web responsif untuk mengontrol relay, memantau suhu/kelembaban, dan mengaktifkan fitur perintah suara pintar berbasis MQTT.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
