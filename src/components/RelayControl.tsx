@@ -16,10 +16,10 @@ interface RelayControlProps {
 }
 
 const RELAY_DETAILS: Record<number, { title: string; badge: string }> = {
-  1: { title: 'Main Lighting', badge: 'R1' },
-  2: { title: 'Exhaust Fan', badge: 'R2' },
-  3: { title: 'Irrigation Valve', badge: 'R3' },
-  4: { title: 'Security Lock', badge: 'R4' },
+  1: { title: 'Lampu 1', badge: 'R1' },
+  2: { title: 'Lampu 2', badge: 'R2' },
+  3: { title: 'Lampu 3', badge: 'R3' },
+  4: { title: 'Lampu 4', badge: 'R4' },
 };
 
 export default function RelayControl({ relay, onToggle, variasiActive, className }: RelayControlProps) {

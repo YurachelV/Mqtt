@@ -104,8 +104,8 @@ export class SpeechRecognitionHelper {
 
     // 1. Check relay specific ON/OFF commands
     // Match "relay 1 nyala", "hidupkan relay 1", "turn on relay 1", "nyalakan relay 1", "aktifkan relay 1", "relay 1 hidup"
-    const relayMatch = text.match(/(hidupkan|matikan|nyalakan|aktifkan|matikan|matikanlah|nyalakanlah|hidupkanlah|nonaktifkan|non-aktifkan|buka|tutup)\s+relay\s*([1-4])/i) ||
-                       text.match(/relay\s*([1-4])\s*(hidup|nyala|mati)/i);
+    const relayMatch = text.match(/(hidupkan|matikan|nyalakan|aktifkan|matikan|matikanlah|nyalakanlah|hidupkanlah|nonaktifkan|non-aktifkan|buka|tutup)\s+(?:relay|lampu|r)\s*([1-4])/i) ||
+                       text.match(/(?:relay|lampu|r)\s*([1-4])\s*(hidup|nyala|mati)/i);
     
     if (relayMatch) {
       let action: 'ON' | 'OFF' = 'ON';
@@ -146,6 +146,21 @@ export class SpeechRecognitionHelper {
     }
 
     // 3. Variation Commands
+    // "stop variasi" or "hentikan variasi" or "matikan variasi 1/2"
+    if (
+      text.includes('stop variasi') || 
+      text.includes('hentikan variasi') || 
+      text.includes('matikan variasi') || 
+      text.includes('semua variasi stop') || 
+      text.includes('variasi stop') || 
+      text.includes('matikan variasi 1') || 
+      text.includes('matikan variasi 2') || 
+      text.includes('matikan variasi satu') || 
+      text.includes('matikan variasi dua')
+    ) {
+      this.config.onCommandMatched('VARIASI_MODE', { mode: 'STOP' });
+      return;
+    }
     // "mulai variasi satu" or "mulai variasi maju" or "variasi satu"
     if (text.includes('variasi satu') || text.includes('variasi 1') || text.includes('variasi maju') || text.includes('mulai variasi satu') || text.includes('mulai variasi 1')) {
       this.config.onCommandMatched('VARIASI_MODE', { mode: '1' });
@@ -154,11 +169,6 @@ export class SpeechRecognitionHelper {
     // "mulai variasi dua" or "mulai variasi mundur" or "variasi dua"
     if (text.includes('variasi dua') || text.includes('variasi 2') || text.includes('variasi mundur') || text.includes('mulai variasi dua') || text.includes('mulai variasi 2')) {
       this.config.onCommandMatched('VARIASI_MODE', { mode: '2' });
-      return;
-    }
-    // "stop variasi" or "hentikan variasi"
-    if (text.includes('stop variasi') || text.includes('hentikan variasi') || text.includes('matikan variasi') || text.includes('semua variasi stop') || text.includes('variasi stop')) {
-      this.config.onCommandMatched('VARIASI_MODE', { mode: 'STOP' });
       return;
     }
 

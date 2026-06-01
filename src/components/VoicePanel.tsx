@@ -27,9 +27,9 @@ export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand, c
 
   const hints = [
     'berapa suhu',
-    'nyalakan kipas exhaust',
+    'nyalakan lampu satu',
     'hidupkan semua relay',
-    'buka kunci pengaman',
+    'matikan variasi dua',
     'jalankan variasi satu'
   ];
 
@@ -99,10 +99,10 @@ export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand, c
         const { relayId, action } = payload;
         // Map relay ID to matches in Indonesian
         const relayNames: Record<number, string> = {
-          1: 'Lampu Utama',
-          2: 'Exhaust Fan',
-          3: 'Irrigation Valve',
-          4: 'Kunci Pengaman'
+          1: 'Lampu 1',
+          2: 'Lampu 2',
+          3: 'Lampu 3',
+          4: 'Lampu 4'
         };
         const rName = relayNames[relayId] || `relay ${relayId}`;
         speakMessage = `Baik, ${rName} telah ${action === 'ON' ? 'diaktifkan' : 'dinonaktifkan'}.`;
