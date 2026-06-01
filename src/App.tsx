@@ -93,7 +93,6 @@ export default function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [simulationActive, setSimulationActive] = useState<boolean>(true); // Enable simulation by default for trial ease
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'voice' | 'brokers'>('dashboard');
 
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
 
@@ -522,110 +521,75 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Tabs Navigation */}
-      <div className="max-w-7xl mx-auto w-full px-4 pt-6 shrink-0">
-        <div className="flex border-b border-slate-800/60 gap-1 overflow-x-auto scroller-hidden">
-          <button
-            id="tab-dashboard-control"
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-5 py-3 text-[10px] uppercase font-bold font-mono tracking-widest border-b-2 transition-all cursor-pointer select-none shrink-0 ${
-              activeTab === 'dashboard'
-                ? 'border-cyan-500 text-cyan-400'
-                : 'border-transparent text-slate-550 hover:text-slate-300'
-            }`}
-          >
-            🕹️ PANEL INTEGRASI & RELAY
-          </button>
-          
-          <button
-            id="tab-voice-assistant"
-            onClick={() => setActiveTab('voice')}
-            className={`px-5 py-3 text-[10px] uppercase font-bold font-mono tracking-widest border-b-2 transition-all cursor-pointer select-none shrink-0 flex items-center gap-1.5 ${
-              activeTab === 'voice'
-                ? 'border-cyan-500 text-cyan-400'
-                : 'border-transparent text-slate-550 hover:text-slate-300'
-            }`}
-          >
-            🎙️ ASISTEN PERINTAH SUARA
-            <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[8px] px-1.5 py-0.2 rounded font-bold tracking-widest animate-pulse">LIVE</span>
-          </button>
-
-          <button
-            id="tab-brokers-config"
-            onClick={() => setActiveTab('brokers')}
-            className={`px-5 py-3 text-[10px] uppercase font-bold font-mono tracking-widest border-b-2 transition-all cursor-pointer select-none shrink-0 ${
-              activeTab === 'brokers'
-                ? 'border-cyan-500 text-cyan-400'
-                : 'border-transparent text-slate-550 hover:text-slate-300'
-            }`}
-          >
-            🌐 SETUP MULTI-BROKER MQTT
-          </button>
-        </div>
-      </div>
-
-      {/* Responsive Content Pane */}
+      {/* Main Single-Page Bento Dashboard */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
-        {activeTab === 'dashboard' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Block: Sensor Meter Gages */}
-            <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* COLUMN 1: SENSOR & VOICE ASSISTANT COMPANION (lg:col-span-4) */}
+          <div className="lg:col-span-4 flex flex-col gap-6 w-full">
+            {/* Live Sensor Metrics Gauges */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
               <MetricCard type="suhu" value={sensorData.suhu} />
               <MetricCard type="kelembaban" value={sensorData.kelembaban} />
             </div>
 
-            {/* Right Block: Control and Mode animation */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              {/* 4 Relay Grid switches */}
-              <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
-                <span className="text-[10px] text-slate-400 font-bold font-mono tracking-widest uppercase mb-4 block">
-                  Kontrol Sirkuler Relay Fisik
-                </span>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {relays.map((r) => (
-                    <RelayControl
-                      key={r.id}
-                      relay={r}
-                      onToggle={handleToggleRelay}
-                      variasiActive={variasiMode !== 0}
-                    />
-                  ))}
+            {/* Voice Assistant Panel Component */}
+            <VoicePanel
+              lastSuhu={sensorData.suhu}
+              lastKelembaban={sensorData.kelembaban}
+              onVoiceCommand={handleVoiceCommand}
+            />
+          </div>
+
+          {/* COLUMN 2: CONTROLS, SEQUENCE & GATEWAYS (lg:col-span-8) */}
+          <div className="lg:col-span-8 flex flex-col gap-6 w-full">
+            {/* 4 Relay Grid switches */}
+            <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 shadow-lg backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-5 border-b border-cyan-900/10 pb-3">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                    <Cpu size={16} className="text-cyan-400" />
+                    <span>Kontrol Sirkuler Relay Fisik</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Aktifkan atau matikan sirkuit relai daya ESP32 secara manual
+                  </p>
                 </div>
               </div>
-
-              {/* Variasi Relay Component */}
-              <VariasiControl
-                activeMode={variasiMode}
-                jedaMs={variasiJeda}
-                onSelectMode={handleSelectVariasiMode}
-                onSelectJeda={handleSelectVariasiJeda}
-              />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {relays.map((r) => (
+                  <RelayControl
+                    key={r.id}
+                    relay={r}
+                    onToggle={handleToggleRelay}
+                    variasiActive={variasiMode !== 0}
+                  />
+                ))}
+              </div>
             </div>
+
+            {/* Variasi Relay Component */}
+            <VariasiControl
+              activeMode={variasiMode}
+              jedaMs={variasiJeda}
+              onSelectMode={handleSelectVariasiMode}
+              onSelectJeda={handleSelectVariasiJeda}
+            />
+
+            {/* Broker Redundancy Switcher & Connection Gateway Panel */}
+            <BrokerPanel
+              brokers={brokers}
+              activeBrokerId={activeBrokerId}
+              activeHardwareBrokerId={activeHardwareBrokerId}
+              connectionState={connectionState}
+              onSwitchHardwareBroker={handleSwitchHardwareBroker}
+              onSwitchWebBroker={handleSwitchWebBroker}
+              onUpdateBrokerWSS={handleUpdateBrokerWSSSettings}
+            />
           </div>
-        )}
+        </div>
 
-        {activeTab === 'voice' && (
-          <VoicePanel
-            lastSuhu={sensorData.suhu}
-            lastKelembaban={sensorData.kelembaban}
-            onVoiceCommand={handleVoiceCommand}
-          />
-        )}
-
-        {activeTab === 'brokers' && (
-          <BrokerPanel
-            brokers={brokers}
-            activeBrokerId={activeBrokerId}
-            activeHardwareBrokerId={activeHardwareBrokerId}
-            connectionState={connectionState}
-            onSwitchHardwareBroker={handleSwitchHardwareBroker}
-            onSwitchWebBroker={handleSwitchWebBroker}
-            onUpdateBrokerWSS={handleUpdateBrokerWSSSettings}
-          />
-        )}
-
-        {/* Live debug serial logs always visible at bottom of active dashboard to feel extremely engaging */}
+        {/* Live debug serial logs always visible at bottom to feel extremely engaging */}
         <TerminalLogs logs={logs} onClearLogs={handleClearLogs} />
       </main>
 
@@ -634,9 +598,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© 2026 ESP32 Control Hub. Redundancy Broker Environment.</p>
           <div className="flex gap-4">
-            <a href="#tab-dashboard-control" className="hover:text-cyan-400 transition-colors">Relay Panel</a>
-            <a href="#tab-voice-assistant" className="hover:text-cyan-400 transition-colors">Voice Panel</a>
-            <a href="#tab-brokers-config" className="hover:text-cyan-400 transition-colors">MQTT Config</a>
+            <span className="text-slate-600">ALL SERVICES STATUS: ACTIVE</span>
           </div>
         </div>
       </footer>
