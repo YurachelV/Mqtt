@@ -51,7 +51,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all ${
               filter === 'all'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
             }`}
           >
             ALL
@@ -63,7 +63,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'rx'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
             }`}
           >
             <ArrowDownLeft size={8} />
@@ -76,7 +76,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'tx'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
             }`}
           >
             <ArrowUpRight size={8} />
@@ -89,7 +89,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'sys_err'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
             }`}
           >
             <Cpu size={8} />
@@ -102,7 +102,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
           <button
             id="btn-clear-logs"
             onClick={onClearLogs}
-            className="p-0.5 px-1.5 rounded hover:bg-rose-500/10 text-slate-500 hover:text-rose-450 transition-all cursor-pointer border border-transparent hover:border-rose-500/20"
+            className="p-0.5 px-1.5 rounded hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-all cursor-pointer border border-transparent hover:border-rose-500/20"
             title="Clean terminal buffer"
           >
             <Trash2 size={11} />
@@ -123,7 +123,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
           filteredLogs.map((log) => {
             const timeStr = log.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            let colorClass = 'text-slate-350';
+            let colorClass = 'text-slate-300';
             let iconText = 'SYS';
             
             if (log.type === 'rx') {
@@ -133,7 +133,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
               colorClass = 'text-cyan-300';
               iconText = 'TX';
             } else if (log.type === 'error') {
-              colorClass = 'text-rose-450 font-semibold';
+              colorClass = 'text-rose-400 font-semibold';
               iconText = 'ERR';
             } else if (log.type === 'success') {
               colorClass = 'text-teal-300 font-bold';
@@ -143,7 +143,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             return (
               <div 
                 key={log.id} 
-                className="flex items-start md:items-center justify-between gap-2.5 leading-relaxed hover:bg-slate-900/30 p-1 md:p-0.5 rounded transition-all border-b border-slate-955/20 last:border-0"
+                className="flex items-start md:items-center justify-between gap-2.5 leading-relaxed hover:bg-slate-900/30 p-1 md:p-0.5 rounded transition-all border-b border-slate-800/10 last:border-0"
               >
                 {/* Meta details with static spacing for gorgeous alignment */}
                 <div className="flex items-center gap-2 shrink-0 select-none">
