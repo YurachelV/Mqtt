@@ -110,6 +110,8 @@ export default function App() {
 
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
 
+  const activeBroker = brokers.find((b) => b.id === activeBrokerId);
+
   // Sync brokers to localStorage when they change
   useEffect(() => {
     localStorage.setItem('esp32_iot_brokers', JSON.stringify(brokers));
@@ -492,35 +494,19 @@ export default function App() {
               <span>{connectionState === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}</span>
             </div>
 
-            {/* Selector Dropdown displayed exactly like in the screenshot */}
+            {/* Active Broker Status Badge */}
             <div className="flex items-center gap-2">
               <span className="text-[9px] text-slate-500 font-extrabold tracking-wider uppercase font-mono hidden sm:inline">
                 ACTIVE BROKER
               </span>
-              <select
-                id="header-broker-select"
-                value={activeBrokerId}
-                onChange={(e) => handleSwitchWebBroker(Number(e.target.value))}
-                className="bg-slate-900 border border-slate-800 focus:border-cyan-500 hover:border-slate-755 text-slate-300 font-mono text-xs font-bold py-1.5 px-2.5 rounded-lg cursor-pointer focus:outline-none transition-all"
+              <div 
+                id="header-active-broker-badge"
+                className="bg-black/40 border border-cyan-500/15 text-cyan-400 font-mono text-[10px] font-bold py-1.5 px-3 rounded-lg flex items-center gap-2 select-none"
               >
-                {brokers.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name.toUpperCase()}
-                  </option>
-                ))}
-              </select>
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span>{activeBroker ? activeBroker.name.toUpperCase() : 'UNKNOWN'}</span>
+              </div>
             </div>
-
-            {/* Custom Settings Trigger Button */}
-            <button
-              id="header-settings-btn"
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-1.5 px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-705 hover:bg-slate-850 text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5 transition-all text-xs shrink-0 font-sans"
-              title="Konfigurasi Broker"
-            >
-              <Settings size={13} className="text-cyan-400" />
-              <span className="font-mono text-[9px] font-extrabold uppercase hidden sm:inline">SETTING</span>
-            </button>
           </div>
         </div>
       </header>

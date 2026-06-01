@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Play, ArrowLeftRight, Ban } from 'lucide-react';
+import { Play, ArrowLeftRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface VariasiControlProps {
@@ -32,22 +32,6 @@ export default function VariasiControl({
         SEQUENCE CONTROL
       </span>
 
-      {/* Emergency Stop Button (top of sequence panel) */}
-      <motion.button
-        id="cmd-variasi-stop"
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
-        onClick={() => onSelectMode('STOP')}
-        className={`w-full py-3 px-4 rounded-xl font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer border transition-all duration-300 ${
-          activeMode === 0
-            ? 'bg-rose-950/15 text-rose-500 border-rose-900/40 opacity-50'
-            : 'bg-rose-600 border-rose-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.25)]'
-        }`}
-      >
-        <Ban size={14} className={activeMode !== 0 ? 'animate-pulse' : ''} />
-        <span>EMERGENCY STOP</span>
-      </motion.button>
-
       {/* Vertical Stack of Variasi 1 and 2 Actions */}
       <div className="flex flex-col gap-3">
         {/* VARIASI 1 Card Button */}
@@ -55,7 +39,7 @@ export default function VariasiControl({
           id="cmd-variasi-1"
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          onClick={() => onSelectMode('1')}
+          onClick={() => onSelectMode(activeMode === 1 ? 'STOP' : '1')}
           className={`w-full text-left rounded-xl p-3.5 flex items-center gap-4 transition-all duration-300 border cursor-pointer ${
             activeMode === 1
               ? 'bg-[#0b1424]/80 border-cyan-500/80 shadow-[0_0_12px_rgba(6,182,212,0.15)] text-white'
@@ -86,7 +70,7 @@ export default function VariasiControl({
           id="cmd-variasi-2"
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          onClick={() => onSelectMode('2')}
+          onClick={() => onSelectMode(activeMode === 2 ? 'STOP' : '2')}
           className={`w-full text-left rounded-xl p-3.5 flex items-center gap-4 transition-all duration-300 border cursor-pointer ${
             activeMode === 2
               ? 'bg-[#150e26]/80 border-purple-500/80 shadow-[0_0_12px_rgba(168,85,247,0.15)] text-white'
