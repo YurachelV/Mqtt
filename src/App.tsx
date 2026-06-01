@@ -141,7 +141,7 @@ export default function App() {
   // Publish Change Broker Request code (1, 2, or 3) to the ESP32 hardware via MQTT
   const handleSwitchHardwareBroker = (id: number) => {
     const commandTopic = 'kontrol/broker';
-    const payload = `SWITCH_BROKER_${id}`;
+    const payload = String(id);
     
     publishMessage(commandTopic, payload);
 
@@ -196,12 +196,12 @@ export default function App() {
   const handleSelectVariasiMode = (mode: '1' | '2' | 'STOP') => {
     if (mode === 'STOP') {
       const activeName = variasiMode === 1 ? 'Variasi 1' : variasiMode === 2 ? 'Variasi 2' : 'Variasi';
-      publishMessage(`kontrol/variasi${variasiMode || ''}`, 'STOP');
+      publishMessage('kontrol/variasi', 'STOP');
       addLog(`${activeName} Dihentikan`, 'info');
       setVariasiMode(0);
       setRelays((prev) => prev.map((r) => ({ ...r, state: false })));
     } else {
-      publishMessage(`kontrol/variasi${mode}`, 'START');
+      publishMessage('kontrol/variasi', mode);
       setVariasiMode(mode === '1' ? 1 : 2);
     }
   };
