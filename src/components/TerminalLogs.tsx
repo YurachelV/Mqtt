@@ -32,7 +32,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
   });
 
   return (
-    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-full flex-1 min-h-[400px] overflow-hidden transition-all duration-300 ${className || ''}`}>
+    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-[480px] lg:h-[580px] max-h-[580px] overflow-hidden transition-all duration-300 ${className || ''}`}>
       {/* Header Panel */}
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-cyan-900/10 shrink-0">
         <div className="flex items-center gap-2">
