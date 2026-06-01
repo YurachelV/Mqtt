@@ -97,10 +97,10 @@ export default function BrokerPanel({
                   : 'bg-black/40 border-slate-800'
               }`}
             >
-              <div className="p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 {/* Broker Identifier */}
-                <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                  <div className={`w-8 h-8 rounded-md font-mono font-bold text-[10px] flex items-center justify-center shrink-0 border transition-all duration-300 ${
+                <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                  <div className={`w-11 h-11 rounded-lg font-mono font-bold text-xs flex items-center justify-center shrink-0 border transition-all duration-300 ${
                     isWebConnectedBroker 
                       ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40' 
                       : 'bg-slate-900 border-slate-800 text-slate-500'
@@ -109,50 +109,50 @@ export default function BrokerPanel({
                   </div>
                   
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="font-bold text-white text-xs">{broker.name}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-white text-sm">{broker.name}</span>
                       
                       {/* Active labels */}
                       {isHardwareActive && (
-                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.1 rounded text-[8px] font-extrabold uppercase tracking-wide flex items-center gap-0.5 animate-pulse">
-                          <ShieldCheck size={8} />
+                        <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide flex items-center gap-1 animate-pulse">
+                          <ShieldCheck size={10} />
                           ESP32 Aktif
                         </span>
                       )}
-
+ 
                       {isWebConnectedBroker && (
-                        <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.1 rounded text-[8px] font-bold uppercase tracking-wide">
+                        <span className="bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide">
                           Web OK
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-col gap-0.2 mt-0.5">
-                      <code className="text-[10px] text-slate-400 font-mono block truncate">
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <code className="text-xs text-slate-400 font-mono block truncate">
                         {broker.wsUrl}
                       </code>
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Status elements and action Buttons */}
-                <div className="flex items-center flex-wrap gap-1.5 md:justify-end shrink-0 text-[10px]">
+                <div className="flex items-center flex-wrap gap-2 md:justify-end shrink-0 text-xs">
                   {/* Edit configuration button */}
                   <button
                     id={`btn-edit-broker-${broker.id}`}
                     onClick={() => handleEditClick(broker)}
-                    className="flex items-center gap-1 px-2 py-1 rounded bg-slate-900 border border-slate-800 hover:bg-slate-850 text-slate-300 cursor-pointer text-[10px]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-850 text-slate-300 cursor-pointer text-xs"
                   >
-                    <Settings size={11} />
+                    <Settings size={13} />
                     <span>Config</span>
-                    {isEditing ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                    {isEditing ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
-
+ 
                   {/* Connect Web Client to this Broker */}
                   <button
                     id={`btn-connect-web-broker-${broker.id}`}
                     onClick={() => onSwitchWebBroker(broker.id)}
                     disabled={activeBrokerId === broker.id && connectionState === 'connected'}
-                    className={`px-2 py-1 rounded text-[10px] font-bold border transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                       activeBrokerId === broker.id
                         ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25 cursor-default'
                         : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
@@ -160,15 +160,15 @@ export default function BrokerPanel({
                   >
                     {activeBrokerId === broker.id ? 'Web Terpilih' : 'Hubungkan Web'}
                   </button>
-
+ 
                   {/* Push switch command to ESP32 */}
                   <button
                     id={`btn-control-esp-broker-${broker.id}`}
                     onClick={() => onSwitchHardwareBroker(broker.id)}
-                    className="px-2 py-1 rounded text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-500/25 hover:bg-cyan-500/20"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer flex items-center gap-1 bg-cyan-500/10 text-cyan-400 border-cyan-500/25 hover:bg-cyan-500/20"
                     title="Kirim instruksi ganti broker ke ESP32 via MQTT"
                   >
-                    <RefreshCw size={11} className="animate-spin-slow text-cyan-400" />
+                    <RefreshCw size={13} className="animate-spin-slow text-cyan-400" />
                     <span>Pindahkan ESP32</span>
                   </button>
                 </div>
