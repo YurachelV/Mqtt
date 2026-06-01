@@ -12,6 +12,7 @@ interface VariasiControlProps {
   jedaMs: number; // 50 - 500 ms
   onSelectMode: (mode: '1' | '2' | 'STOP') => void;
   onSelectJeda: (jeda: number) => void;
+  className?: string;
 }
 
 export default function VariasiControl({
@@ -19,11 +20,12 @@ export default function VariasiControl({
   jedaMs,
   onSelectMode,
   onSelectJeda,
+  className,
 }: VariasiControlProps) {
   return (
     <div 
       id="variasi-panel" 
-      className="bg-slate-900/40 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col gap-4 w-full"
+      className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4.5 sm:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between w-full ${className || ''}`}
     >
       {/* Header Label */}
       <span className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase block shrink-0">

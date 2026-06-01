@@ -532,11 +532,16 @@ export default function App() {
           
           {/* COLUMN 1 (Left): ENVIRONMENT METRICS & VOICE ASSISTANT */}
           <div className="lg:col-span-3 flex flex-col gap-5 justify-between">
-            <MetricCard suhu={sensorData.suhu} kelembaban={sensorData.kelembaban} />
+            <MetricCard 
+              suhu={sensorData.suhu} 
+              kelembaban={sensorData.kelembaban} 
+              className="lg:h-[220px]"
+            />
             <VoicePanel
               lastSuhu={sensorData.suhu}
               lastKelembaban={sensorData.kelembaban}
               onVoiceCommand={handleVoiceCommand}
+              className="lg:h-[340px]"
             />
           </div>
 
@@ -560,6 +565,7 @@ export default function App() {
               jedaMs={variasiJeda}
               onSelectMode={handleSelectVariasiMode}
               onSelectJeda={handleSelectVariasiJeda}
+              className="lg:h-[304px]"
             />
           </div>
 

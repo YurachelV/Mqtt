@@ -9,16 +9,17 @@ import { Thermometer, Droplets, AlertTriangle } from 'lucide-react';
 interface MetricProps {
   suhu: number | null;
   kelembaban: number | null;
+  className?: string;
 }
 
-export default function MetricCard({ suhu, kelembaban }: MetricProps) {
+export default function MetricCard({ suhu, kelembaban, className }: MetricProps) {
   const isSuhuOffline = suhu === null;
   const isKelembabanOffline = kelembaban === null;
 
   return (
     <div 
       id="environment-metrics-card" 
-      className="bg-slate-900/40 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col gap-5 w-full"
+      className={`bg-slate-900/40 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col justify-between w-full ${className || ''}`}
     >
       {/* Card Header Label */}
       <span className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase block shrink-0">

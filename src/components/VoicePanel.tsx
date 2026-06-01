@@ -12,9 +12,10 @@ interface VoicePanelProps {
   lastSuhu: number | null;
   lastKelembaban: number | null;
   onVoiceCommand: (type: string, payload?: any) => void;
+  className?: string;
 }
 
-export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand }: VoicePanelProps) {
+export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand, className }: VoicePanelProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isFinalTranscript, setIsFinalTranscript] = useState(false);
@@ -173,7 +174,7 @@ export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand }:
   return (
     <div 
       id="voice-command-panel" 
-      className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center text-center transition-all duration-300 w-full min-h-[290px]"
+      className={`bg-slate-900/40 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-between text-center transition-all duration-300 w-full ${className || ''}`}
     >
       {/* Microphone glowing circle button */}
       <div className="relative w-24 h-24 flex items-center justify-center mb-4">

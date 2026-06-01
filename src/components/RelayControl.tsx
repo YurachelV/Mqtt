@@ -12,6 +12,7 @@ interface RelayControlProps {
   relay: RelayState;
   onToggle: (id: number, newState: boolean) => void;
   variasiActive: boolean;
+  className?: string;
 }
 
 const RELAY_DETAILS: Record<number, { title: string; badge: string }> = {
@@ -21,7 +22,7 @@ const RELAY_DETAILS: Record<number, { title: string; badge: string }> = {
   4: { title: 'Security Lock', badge: 'R4' },
 };
 
-export default function RelayControl({ relay, onToggle, variasiActive }: RelayControlProps) {
+export default function RelayControl({ relay, onToggle, variasiActive, className }: RelayControlProps) {
   const { id, state } = relay;
   const info = RELAY_DETAILS[id] || { title: `Relay ${id}`, badge: `R${id}` };
 
@@ -37,11 +38,11 @@ export default function RelayControl({ relay, onToggle, variasiActive }: RelayCo
       whileHover={variasiActive ? {} : { scale: 1.01 }}
       whileTap={variasiActive ? {} : { scale: 0.98 }}
       onClick={handleCardClick}
-      className={`w-full text-left rounded-2xl p-5 flex flex-col justify-between min-h-[145px] transition-all duration-300 relative overflow-hidden border ${
+      className={`w-full text-left rounded-2xl p-4 flex flex-col justify-between h-[120px] lg:h-[120px] min-h-[120px] transition-all duration-300 relative overflow-hidden border ${
         state
           ? 'bg-[#090e1b]/70 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
           : 'bg-[#080a13]/80 border-slate-800 hover:border-slate-700'
-      } ${variasiActive ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+      } ${variasiActive ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'} ${className || ''}`}
     >
       {/* Top Row: R-Badge and Pill Switch */}
       <div className="flex justify-between items-center w-full shrink-0">
