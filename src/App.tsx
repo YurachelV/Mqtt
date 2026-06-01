@@ -523,11 +523,11 @@ export default function App() {
 
       {/* Main Single-Page Bento Dashboard */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 flex flex-col gap-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* COLUMN 1: SENSOR & VOICE ASSISTANT COMPANION (lg:col-span-4) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          {/* COLUMN 1: SENSOR, VOICE ASSISTANT & LIVE TERMINAL (lg:col-span-4) */}
           <div className="lg:col-span-4 flex flex-col gap-4 w-full">
-            {/* Live Sensor Metrics Gauges */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+            {/* Live Sensor Metrics Gauges - Side-by-Side to be compact */}
+            <div className="grid grid-cols-2 gap-3 shrink-0">
               <MetricCard type="suhu" value={sensorData.suhu} />
               <MetricCard type="kelembaban" value={sensorData.kelembaban} />
             </div>
@@ -538,43 +538,49 @@ export default function App() {
               lastKelembaban={sensorData.kelembaban}
               onVoiceCommand={handleVoiceCommand}
             />
+
+            {/* Live debug serial logs integrated at the bottom of Column 1 to balance the empty space! */}
+            <TerminalLogs className="flex-1 min-h-[180px]" logs={logs} onClearLogs={handleClearLogs} />
           </div>
 
-          {/* COLUMN 2: CONTROLS, SEQUENCE & GATEWAYS (lg:col-span-8) */}
-          <div className="lg:col-span-8 flex flex-col gap-4 w-full">
-            {/* 4 Relay Grid switches */}
-            <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-3 border-b border-cyan-900/10 pb-2">
-                <div>
-                  <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-                    <Cpu size={14} className="text-cyan-400" />
-                    <span>Kontrol Sirkuler Relay Fisik</span>
-                  </h2>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Aktifkan atau matikan sirkuit relai daya ESP32 secara manual
-                  </p>
+          {/* COLUMN 2: RELAY CONTROLS, SEQUENCE & GATEWAYS (lg:col-span-8) */}
+          <div className="lg:col-span-8 flex flex-col gap-4 w-full justify-between">
+            {/* Split row: Relays and Sequence Control side-by-side on desktop */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {/* 4 Relay Grid switches */}
+              <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-3 border-b border-cyan-900/10 pb-2">
+                  <div>
+                    <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+                      <Cpu size={14} className="text-cyan-400" />
+                      <span>Kontrol Sirkuler Relay Fisik</span>
+                    </h2>
+                    <p className="text-[10px] text-slate-500 mt-0.5">
+                      Aktifkan atau matikan sirkuit relai daya ESP32 secara manual
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2.5 my-auto">
+                  {relays.map((r) => (
+                    <RelayControl
+                      key={r.id}
+                      relay={r}
+                      onToggle={handleToggleRelay}
+                      variasiActive={variasiMode !== 0}
+                    />
+                  ))}
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {relays.map((r) => (
-                  <RelayControl
-                    key={r.id}
-                    relay={r}
-                    onToggle={handleToggleRelay}
-                    variasiActive={variasiMode !== 0}
-                  />
-                ))}
-              </div>
-            </div>
 
-            {/* Variasi Relay Component */}
-            <VariasiControl
-              activeMode={variasiMode}
-              jedaMs={variasiJeda}
-              onSelectMode={handleSelectVariasiMode}
-              onSelectJeda={handleSelectVariasiJeda}
-            />
+              {/* Variasi Relay Component */}
+              <VariasiControl
+                activeMode={variasiMode}
+                jedaMs={variasiJeda}
+                onSelectMode={handleSelectVariasiMode}
+                onSelectJeda={handleSelectVariasiJeda}
+              />
+            </div>
 
             {/* Broker Redundancy Switcher & Connection Gateway Panel */}
             <BrokerPanel
@@ -588,9 +594,6 @@ export default function App() {
             />
           </div>
         </div>
-
-        {/* Live debug serial logs always visible at bottom to feel extremely engaging */}
-        <TerminalLogs logs={logs} onClearLogs={handleClearLogs} />
       </main>
 
       {/* Footer Branding */}
