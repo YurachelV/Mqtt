@@ -50,21 +50,21 @@ const INITIAL_BROKERS: BrokerConfig[] = [
     server: 'node02.myqtthub.com',
     port: 8883,
     wsUrl: 'tcps://node02.myqtthub.com:8883', // TLS raw secure port mapped dynamically via Proxy
-    user: 'ESP@domain_anda',
-    pass: 'password_anda',
-    clientId: 'WebClientHub_' + Math.random().toString(16).substring(2, 6),
+    user: 'ESP',
+    pass: 'a',
+    clientId: 'WebClient',
     vhost: null,
     useProxy: true
   },
   {
     id: 3,
     name: 'Broker 3 — Cedalo Mosquitto',
-    server: 'pf-l6rvh5uuefqnek6dwyef.cedalo.cloud',
-    port: 8883,
-    wsUrl: 'wss://pf-l6rvh5uuefqnek6dwyef.cedalo.cloud:443/mqtt', // WS path usually /mqtt
-    user: 'Web',
+    server: 'pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud',
+    port: 443,
+    wsUrl: 'wss://pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud:443/mqtt', // WS path usually /mqtt
+    user: 'Web1',
     pass: 'a',
-    clientId: 'WebClientCedalo_' + Math.random().toString(16).substring(2, 6),
+    clientId: 'WebClients',
     vhost: null,
     useProxy: false
   }
@@ -82,7 +82,31 @@ export default function App() {
     const saved = localStorage.getItem('esp32_iot_brokers');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved) as BrokerConfig[];
+        return parsed.map((b) => {
+          // Auto-patch broker 2 if it still has old default parameters
+          if (b.id === 2 && b.user === 'ESP@domain_anda') {
+            return {
+              ...b,
+              user: 'ESP',
+              pass: 'a',
+              clientId: 'WebClient'
+            };
+          }
+          // Auto-patch broker 3 if it still has old default parameters
+          if (b.id === 3 && (b.wsUrl === 'wss://pf-l6rvh5uuefqnek6dwyef.cedalo.cloud:443/mqtt' || b.user === 'Web')) {
+            return {
+              ...b,
+              server: 'pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud',
+              port: 443,
+              wsUrl: 'wss://pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud:443/mqtt',
+              user: 'Web1',
+              pass: 'a',
+              clientId: 'WebClients'
+            };
+          }
+          return b;
+        });
       } catch (e) {
         return INITIAL_BROKERS;
       }

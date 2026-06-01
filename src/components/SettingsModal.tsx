@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Settings, Database, ShieldAlert, RotateCcw, Save } from 'lucide-react';
+import { X, Settings, Database, ShieldAlert, RotateCcw, Save, Eye, EyeOff } from 'lucide-react';
 import { BrokerConfig } from '../types';
 
 interface SettingsModalProps {
@@ -18,6 +18,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ isOpen, onClose, brokers, onSaveAllBrokers }: SettingsModalProps) {
   const [localBrokers, setLocalBrokers] = useState<BrokerConfig[]>(() => JSON.parse(JSON.stringify(brokers)));
   const [activeTabId, setActiveTabId] = useState<number>(1);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Sync state if brokers list changes from outside
   React.useEffect(() => {
@@ -60,21 +61,21 @@ export default function SettingsModal({ isOpen, onClose, brokers, onSaveAllBroke
           server: 'node02.myqtthub.com',
           port: 8883,
           wsUrl: 'tcps://node02.myqtthub.com:8883',
-          user: 'ESP@domain_anda',
-          pass: 'password_anda',
-          clientId: 'WebClientHub_' + Math.random().toString(16).substring(2, 6),
+          user: 'ESP',
+          pass: 'a',
+          clientId: 'WebClient',
           vhost: null,
           useProxy: true
         },
         {
           id: 3,
           name: 'Broker 3 — Cedalo Mosquitto',
-          server: 'pf-l6rvh5uuefqnek6dwyef.cedalo.cloud',
-          port: 8883,
-          wsUrl: 'wss://pf-l6rvh5uuefqnek6dwyef.cedalo.cloud:443/mqtt',
-          user: 'Web',
+          server: 'pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud',
+          port: 443,
+          wsUrl: 'wss://pf-26xt4cmufmfw6kr1zpyq.cedalo.cloud:443/mqtt',
+          user: 'Web1',
           pass: 'a',
-          clientId: 'WebClientCedalo_' + Math.random().toString(16).substring(2, 6),
+          clientId: 'WebClients',
           vhost: null,
           useProxy: false
         }
@@ -234,18 +235,27 @@ export default function SettingsModal({ isOpen, onClose, brokers, onSaveAllBroke
               </div>
 
               {/* Password */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 font-sans">
                 <label className="text-[10px] text-slate-400 font-extrabold tracking-wider uppercase">
                   MQTT Password (opsional)
                 </label>
-                <input
-                  id={`field-broker-pass-${activeTabId}`}
-                  type="password"
-                  value={currentBroker.pass || ''}
-                  onChange={(e) => handleFieldChange('pass', e.target.value)}
-                  className="bg-black/35 border border-slate-800 focus:border-cyan-500/80 focus:outline-none p-2.5 rounded-lg text-xs font-mono text-white placeholder-slate-650 transition-colors"
-                  placeholder="Password"
-                />
+                <div className="relative">
+                  <input
+                    id={`field-broker-pass-${activeTabId}`}
+                    type={showPassword ? 'text' : 'password'}
+                    value={currentBroker.pass || ''}
+                    onChange={(e) => handleFieldChange('pass', e.target.value)}
+                    className="w-full bg-black/35 border border-slate-800 focus:border-cyan-500/80 focus:outline-none p-2.5 pr-10 rounded-lg text-xs font-mono text-white placeholder-slate-650 transition-colors"
+                    placeholder="Password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-350 focus:outline-none cursor-pointer p-1 rounded hover:bg-white/5"
+                  >
+                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
               </div>
 
               {/* ClientID */}

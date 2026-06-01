@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { RefreshCw, Network, Settings, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { RefreshCw, Network, Settings, ShieldCheck, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { BrokerConfig } from '../types';
 
 interface BrokerPanelProps {
@@ -32,6 +32,7 @@ export default function BrokerPanel({
   const [customPass, setCustomPass] = useState('');
   const [customClientId, setCustomClientId] = useState('');
   const [customUseProxy, setCustomUseProxy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEditClick = (b: BrokerConfig) => {
     if (editingBrokerId === b.id) {
@@ -208,14 +209,23 @@ export default function BrokerPanel({
 
                     <div className="flex flex-col gap-1">
                       <label className="text-slate-500 font-semibold">Password</label>
-                      <input
-                        id={`input-pass-broker-${broker.id}`}
-                        type="password"
-                        value={customPass}
-                        onChange={(e) => setCustomPass(e.target.value)}
-                        className="bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-1.5 rounded font-mono text-slate-200"
-                        placeholder="Password"
-                      />
+                      <div className="relative">
+                        <input
+                          id={`input-pass-broker-${broker.id}`}
+                          type={showPassword ? 'text' : 'password'}
+                          value={customPass}
+                          onChange={(e) => setCustomPass(e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 focus:border-cyan-500 focus:outline-none p-1.5 pr-8 rounded font-mono text-slate-200"
+                          placeholder="Password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-350 focus:outline-none cursor-pointer p-0.5 rounded hover:bg-white/5"
+                        >
+                          {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-1">
