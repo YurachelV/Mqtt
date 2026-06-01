@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ShieldAlert, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { RelayState } from '../types';
 
 interface RelayControlProps {
@@ -14,16 +14,16 @@ interface RelayControlProps {
   variasiActive: boolean;
 }
 
-const RELAY_DETAILS: Record<number, { title: string; pin: string; idxString: string }> = {
-  1: { title: 'Pompa Sirkulasi', pin: 'RELAY1_PIN_05', idxString: '01' },
-  2: { title: 'Kipas Exhaust', pin: 'RELAY2_PIN_19', idxString: '02' },
-  3: { title: 'Lampu Grow Light', pin: 'RELAY3_PIN_18', idxString: '03' },
-  4: { title: 'Selenoide Mist', pin: 'RELAY4_PIN_23', idxString: '04' },
+const RELAY_DETAILS: Record<number, { title: string; badge: string }> = {
+  1: { title: 'Main Lighting', badge: 'R1' },
+  2: { title: 'Exhaust Fan', badge: 'R2' },
+  3: { title: 'Irrigation Valve', badge: 'R3' },
+  4: { title: 'Security Lock', badge: 'R4' },
 };
 
 export default function RelayControl({ relay, onToggle, variasiActive }: RelayControlProps) {
   const { id, state } = relay;
-  const info = RELAY_DETAILS[id] || { title: `Relay ${id}`, pin: `RELAY${id}_PIN`, idxString: `0${id}` };
+  const info = RELAY_DETAILS[id] || { title: `Relay ${id}`, badge: `R${id}` };
 
   const handleCardClick = () => {
     if (!variasiActive) {
@@ -35,50 +35,45 @@ export default function RelayControl({ relay, onToggle, variasiActive }: RelayCo
     <motion.button
       id={`relay-card-${id}`}
       whileHover={variasiActive ? {} : { scale: 1.01 }}
-      whileTap={variasiActive ? {} : { scale: 0.99 }}
+      whileTap={variasiActive ? {} : { scale: 0.98 }}
       onClick={handleCardClick}
-      className={`w-full text-left rounded-xl p-4 flex flex-col justify-between min-h-[125px] transition-all duration-300 relative overflow-hidden border ${
+      className={`w-full text-left rounded-2xl p-5 flex flex-col justify-between min-h-[145px] transition-all duration-300 relative overflow-hidden border ${
         state
-          ? 'bg-slate-900/60 border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
-          : 'bg-slate-900/40 border-slate-800/80 hover:border-slate-750'
-      } ${variasiActive ? 'opacity-70 cursor-not-allowed' : ''}`}
+          ? 'bg-[#090e1b]/70 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
+          : 'bg-[#080a13]/80 border-slate-800 hover:border-slate-700'
+      } ${variasiActive ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
     >
-      {/* Upper row: Indicator circle & badge */}
-      <div className="flex justify-between items-center w-full mb-3">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs transition-colors duration-300 ${
-          state 
-            ? 'bg-cyan-500 text-black' 
-            : 'bg-slate-800 text-slate-400'
-        }`}>
-          {info.idxString}
+      {/* Top Row: R-Badge and Pill Switch */}
+      <div className="flex justify-between items-center w-full shrink-0">
+        <div className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 font-mono text-xs font-bold shrink-0">
+          {info.badge}
         </div>
         
-        <div className={`text-[9px] px-2 py-0.5 font-bold rounded uppercase tracking-wider transition-colors duration-300 ${
-          state 
-            ? 'bg-cyan-500 text-black' 
-            : 'bg-slate-800 text-slate-550'
+        {/* Custom modern toggle switch */}
+        <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors duration-200 shrink-0 ${
+          state ? 'bg-cyan-500/80' : 'bg-slate-800'
         }`}>
-          {state ? 'ON' : 'OFF'}
+          <div className={`w-3.5 h-3.5 rounded-full bg-white transition-all transform duration-200 ${
+            state ? 'translate-x-3.5' : 'translate-x-0'
+          }`} />
         </div>
       </div>
 
-      {/* Lower row: pin name and descriptive title */}
+      {/* Title & Status Indicator Container */}
       <div className="mt-auto w-full">
-        <p className={`text-[10px] font-mono tracking-wide transition-colors duration-300 ${
-          state ? 'text-cyan-400' : 'text-slate-500'
-        }`}>
-          {info.pin}
-        </p>
-        <h2 className={`text-base font-bold tracking-tight mt-0.5 transition-colors duration-300 ${
-          state ? 'text-white' : 'text-slate-400'
-        }`}>
+        <h2 className="text-[15px] font-extrabold tracking-tight text-white leading-snug">
           {info.title}
         </h2>
+        <span className={`text-[9px] font-extrabold uppercase tracking-wider block mt-1.5 ${
+          state ? 'text-cyan-400' : 'text-slate-500'
+        }`}>
+          STATUS: {state ? 'on' : 'off'}
+        </span>
       </div>
 
-      {/* Security lockout overlay (variasi Active) */}
+      {/* Security lockout overlay (when variation mode is running on sequence) */}
       {variasiActive && (
-        <div className="absolute inset-0 bg-[#050508]/60 flex flex-col items-center justify-center gap-1 p-2 backdrop-blur-[1px]">
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 p-2 backdrop-blur-[1px]">
           <Lock size={14} className="text-amber-500 animate-pulse" />
           <span className="text-[9px] text-amber-500 font-extrabold tracking-widest uppercase">TERKUNCI</span>
         </div>

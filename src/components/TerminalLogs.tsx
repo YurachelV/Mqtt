@@ -32,88 +32,72 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
   });
 
   return (
-    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-[340px] max-h-[340px] min-h-[340px] overflow-hidden transition-all duration-300 ${className || ''}`}>
+    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-full flex-1 min-h-[400px] overflow-hidden transition-all duration-300 ${className || ''}`}>
       {/* Header Panel */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5 pb-1.5 border-b border-cyan-900/10 shrink-0">
+      <div className="flex items-center justify-between mb-4 pb-2 border-b border-cyan-900/10 shrink-0">
         <div className="flex items-center gap-2">
-          <Terminal size={14} className="text-cyan-400" />
-          <div>
-            <h2 className="text-xs font-bold text-slate-300 tracking-wider uppercase font-mono">Live Serial MQTT Monitor</h2>
-            <p className="text-[8px] text-slate-500 font-mono">DEBUG CONSOLE RX / TX SYSTEM PACKETS</p>
-          </div>
+          <span className="text-slate-500 font-mono font-bold">&gt;_</span>
+          <h2 className="text-[11px] font-extrabold text-slate-300 tracking-wider uppercase font-sans">Activity Log</h2>
         </div>
 
-        {/* Console control filters */}
-        <div className="flex items-center gap-1 flex-wrap">
-          <button
-            id="filter-log-all"
-            onClick={() => setFilter('all')}
-            className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all ${
-              filter === 'all'
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
-            }`}
-          >
-            ALL
-          </button>
-          
-          <button
-            id="filter-log-rx"
-            onClick={() => setFilter('rx')}
-            className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
-              filter === 'rx'
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
-            }`}
-          >
-            <ArrowDownLeft size={8} />
-            <span>RX</span>
-          </button>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-1 bg-black/30 p-0.5 rounded-md border border-slate-800/40 shrink-0">
+            <button
+              id="filter-log-all"
+              onClick={() => setFilter('all')}
+              className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold cursor-pointer transition-all ${
+                filter === 'all'
+                  ? 'bg-cyan-500/10 text-cyan-400'
+                  : 'text-slate-650 hover:text-slate-400'
+              }`}
+            >
+              ALL
+            </button>
+            <button
+              id="filter-log-rx"
+              onClick={() => setFilter('rx')}
+              className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold cursor-pointer transition-all ${
+                filter === 'rx'
+                  ? 'bg-cyan-500/10 text-emerald-400'
+                  : 'text-slate-650 hover:text-slate-400'
+              }`}
+            >
+              RX
+            </button>
+            <button
+              id="filter-log-tx"
+              onClick={() => setFilter('tx')}
+              className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold cursor-pointer transition-all ${
+                filter === 'tx'
+                  ? 'bg-cyan-500/10 text-cyan-400'
+                  : 'text-slate-650 hover:text-slate-400'
+              }`}
+            >
+              TX
+            </button>
+          </div>
 
-          <button
-            id="filter-log-tx"
-            onClick={() => setFilter('tx')}
-            className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
-              filter === 'tx'
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
-            }`}
-          >
-            <ArrowUpRight size={8} />
-            <span>TX</span>
-          </button>
-
-          <button
-            id="filter-log-sys"
-            onClick={() => setFilter('sys_err')}
-            className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
-              filter === 'sys_err'
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
-            }`}
-          >
-            <Cpu size={8} />
-            <span>Sys</span>
-          </button>
-
-          <div className="w-[1px] h-3 bg-slate-850 mx-0.5" />
-
-          {/* Dump recycle trash */}
           <button
             id="btn-clear-logs"
             onClick={onClearLogs}
-            className="p-0.5 px-1.5 rounded hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-all cursor-pointer border border-transparent hover:border-rose-500/20"
+            className="p-1 rounded hover:bg-rose-500/15 text-slate-500 hover:text-rose-400 transition-all cursor-pointer"
             title="Clean terminal buffer"
           >
             <Trash2 size={11} />
           </button>
+
+          {/* Green active dot from the screenshot */}
+          <div className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </div>
         </div>
       </div>
 
       {/* Console log list window */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto bg-black/40 border border-slate-800/80 rounded-xl p-2.5 font-mono text-[10px] space-y-1.5 scrollbar-thin overflow-x-hidden min-h-[100px]"
+        className="flex-1 overflow-y-auto bg-black/25 rounded-lg p-3 font-mono text-[10px] leading-relaxed space-y-2 scrollbar-thin overflow-x-hidden min-h-[150px]"
       >
         {filteredLogs.length === 0 ? (
           <div className="text-slate-700 italic flex items-center justify-center h-full">
@@ -123,57 +107,40 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
           filteredLogs.map((log) => {
             const timeStr = log.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            let colorClass = 'text-slate-300';
-            let iconText = 'SYS';
+            let badgeColor = 'text-cyan-400';
+            let badgeText = 'INFO';
             
             if (log.type === 'rx') {
-              colorClass = 'text-emerald-300';
-              iconText = 'RX';
+              badgeColor = 'text-cyan-400';
+              badgeText = 'INFO';
             } else if (log.type === 'tx') {
-              colorClass = 'text-cyan-300';
-              iconText = 'TX';
+              badgeColor = 'text-purple-400';
+              badgeText = 'COMMAND';
             } else if (log.type === 'error') {
-              colorClass = 'text-rose-400 font-semibold';
-              iconText = 'ERR';
+              badgeColor = 'text-rose-400 font-extrabold';
+              badgeText = 'ERROR';
             } else if (log.type === 'success') {
-              colorClass = 'text-teal-300 font-bold';
-              iconText = 'OK';
+              badgeColor = 'text-emerald-400 font-extrabold';
+              badgeText = 'SUCCESS';
             }
 
             return (
               <div 
                 key={log.id} 
-                className="flex items-start md:items-center justify-between gap-2.5 leading-relaxed hover:bg-slate-900/30 p-1 md:p-0.5 rounded transition-all border-b border-slate-800/10 last:border-0"
+                className="flex items-start gap-1 font-mono hover:bg-slate-900/10 py-0.5 rounded transition-all"
               >
-                {/* Meta details with static spacing for gorgeous alignment */}
-                <div className="flex items-center gap-2 shrink-0 select-none">
-                  <span className="text-slate-600 font-mono text-[9px] min-w-[50px]">
-                    {timeStr}
-                  </span>
-                  
-                  {/* Mode badge */}
-                  <span className={`px-1.5 py-0.2 rounded text-[8px] font-extrabold font-mono tracking-wider shrink-0 uppercase border transition-all ${
-                    log.type === 'rx' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                    log.type === 'tx' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' :
-                    log.type === 'error' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                    log.type === 'success' ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' :
-                    'bg-slate-800/40 text-slate-500 border-slate-700/25'
-                  }`}>
-                    {iconText}
-                  </span>
-                </div>
+                {/* Time string like [15:20:58] in slate-500 */}
+                <span className="text-slate-500 select-none shrink-0 font-mono">
+                  [{timeStr}]
+                </span>
 
-                {/* Topic if exists */}
-                {log.topic ? (
-                  <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-950/20 border border-cyan-800/15 px-1.5 py-0.2 rounded truncate max-w-[140px] shrink-0">
-                    {log.topic}
-                  </span>
-                ) : (
-                  <div className="w-[4px] h-[1px] bg-slate-800 shrink-0 select-none" />
-                )}
+                {/* Badge text like [INFO] / [COMMAND] */}
+                <span className={`${badgeColor} shrink-0 select-none font-mono font-bold`}>
+                  [{badgeText}]
+                </span>
 
-                {/* Message payload content with smart word-level formatting */}
-                <span className={`font-mono text-[10.5px] break-words flex-1 min-w-0 pr-1 select-text ${colorClass}`}>
+                {/* Message text rendering */}
+                <span className="text-slate-300 break-words flex-1 min-w-0 pl-1 font-mono leading-snug">
                   {log.message}
                 </span>
               </div>
@@ -183,9 +150,8 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
       </div>
 
       {/* Terminal footer note */}
-      <div className="flex items-center justify-between text-[8px] text-slate-600 font-mono mt-1.5 shrink-0 uppercase tracking-wider">
-        <span>MQTT WebSockets 115200</span>
-        <span>Payload: Plain-text string</span>
+      <div className="flex items-center justify-center text-[8px] font-mono text-slate-650/90 mt-3 shrink-0 uppercase tracking-widest border-t border-slate-800/40 pt-2">
+        <span>REAL-TIME STREAM ACTIVE</span>
       </div>
     </div>
   );

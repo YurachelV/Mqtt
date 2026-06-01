@@ -4,114 +4,91 @@
  */
 
 import React from 'react';
-import { motion } from 'motion/react';
 import { Thermometer, Droplets, AlertTriangle } from 'lucide-react';
 
 interface MetricProps {
-  type: 'suhu' | 'kelembaban';
-  value: number | null;
+  suhu: number | null;
+  kelembaban: number | null;
 }
 
-export default function MetricCard({ type, value }: MetricProps) {
-  const isSuhu = type === 'suhu';
-  const label = isSuhu ? 'Ambient Temperature' : 'Relative Humidity';
-  const unit = isSuhu ? '°C' : '%';
-  const Icon = isSuhu ? Thermometer : Droplets;
-  
-  // Safe default values
-  const displayValue = value !== null ? Number(value.toFixed(1)) : null;
-  
-  // Custom styling colors based on values
-  let barGradient = 'from-cyan-600 to-cyan-400';
-  let textColor = 'text-cyan-400';
-  let progressPercentage = 0;
-
-  if (isSuhu) {
-    if (value !== null) {
-      progressPercentage = Math.min(Math.max((value / 50) * 100, 0), 100); // 0-50 deg scale
-      if (value < 20) {
-        barGradient = 'from-sky-600 to-sky-400';
-        textColor = 'text-sky-400';
-      } else if (value < 28) {
-        barGradient = 'from-emerald-600 to-emerald-400';
-        textColor = 'text-emerald-400';
-      } else if (value < 35) {
-        barGradient = 'from-amber-600 to-amber-400';
-        textColor = 'text-amber-400';
-      } else {
-        barGradient = 'from-rose-600 to-rose-400';
-        textColor = 'text-rose-400';
-      }
-    }
-  } else {
-    // Kelembaban
-    if (value !== null) {
-      progressPercentage = Math.min(Math.max(value, 0), 100); // 0-100% scale
-      if (value < 40) {
-        barGradient = 'from-orange-600 to-orange-400';
-        textColor = 'text-orange-450';
-      } else if (value < 70) {
-        barGradient = 'from-cyan-600 to-cyan-400';
-        textColor = 'text-cyan-400';
-      } else {
-        barGradient = 'from-blue-600 to-blue-400';
-        textColor = 'text-blue-400';
-      }
-    }
-  }
+export default function MetricCard({ suhu, kelembaban }: MetricProps) {
+  const isSuhuOffline = suhu === null;
+  const isKelembabanOffline = kelembaban === null;
 
   return (
     <div 
-      id={`metric-card-${type}`} 
-      className="relative bg-slate-900/40 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center space-y-1 overflow-hidden transition-all duration-300"
+      id="environment-metrics-card" 
+      className="bg-slate-900/40 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur-sm transition-all duration-300 flex flex-col gap-5 w-full"
     >
-      {/* Background icon decoration with lower opacity */}
-      <div className="absolute top-0 right-0 p-3 opacity-5 text-slate-400">
-        <Icon size={36} />
-      </div>
+      {/* Card Header Label */}
+      <span className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase block shrink-0">
+        ENVIRONMENT METRICS
+      </span>
 
-      <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{label}</p>
-      
-      <div className="flex items-baseline justify-center">
-        {value !== null ? (
-          <div className="text-3xl sm:text-4xl font-light text-white tracking-tight tabular-nums flex items-baseline">
-            <span>{displayValue}</span>
-            <span className="text-cyan-500 text-lg ml-0.5">{unit}</span>
+      {/* Temperature Segment */}
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-800/60">
+        <div className="flex flex-col">
+          <div className="flex items-baseline">
+            {!isSuhuOffline ? (
+              <>
+                <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight tabular-nums">
+                  {suhu.toFixed(1)}
+                </span>
+                <span className="text-orange-400 text-lg sm:text-xl font-bold ml-1">°C</span>
+              </>
+            ) : (
+              <div className="flex items-center gap-1.5 py-1 text-slate-600">
+                <AlertTriangle size={14} className="text-amber-500/80" />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">LURING</span>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-xl font-light text-slate-600 tracking-wider animate-pulse flex items-center justify-center py-2">
-            <AlertTriangle size={16} className="text-amber-500 mr-1.5" />
-            <span className="text-[10px] uppercase tracking-widest font-mono font-bold">LURING</span>
-          </div>
-        )}
-      </div>
-
-      {/* Progress Bar Indicator from Immersive UI theme */}
-      <div className="w-full h-1 bg-slate-800/80 rounded-full mt-2 overflow-hidden">
-        {value !== null ? (
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className={`h-full bg-gradient-to-r ${barGradient} rounded-full`}
-          />
-        ) : (
-          <div className="h-full bg-slate-800/20 rounded-full w-0" />
-        )}
-      </div>
-
-      {/* Footer descriptor text */}
-      <div className="w-full text-center pt-1 text-[9px] font-mono text-slate-500">
-        {value !== null ? (
-          <span>
-            {isSuhu 
-              ? value < 28 ? 'SUHU NORMAL' : 'TERLALU DEKAT AMBANG BATAS!'
-              : value >= 40 && value <= 70 ? 'HUMIDITY OPTIMAL' : 'KELEMBABAN EKSTRIM'
-            }
+          <span className="text-[9px] text-slate-500 font-extrabold tracking-wider uppercase mt-1">
+            TEMPERATURE
           </span>
-        ) : (
-          <span>MENETAPKAN KONEKSI MQTT...</span>
-        )}
+        </div>
+
+        {/* Circular thermo display and light glow ring */}
+        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all ${
+          !isSuhuOffline 
+            ? 'bg-orange-950/20 border border-orange-500/35 shadow-[0_0_12px_rgba(249,115,22,0.15)] text-orange-400' 
+            : 'bg-slate-950/40 border border-slate-800/60 text-slate-600'
+        }`}>
+          <Thermometer size={18} className={!isSuhuOffline ? 'animate-pulse' : ''} />
+        </div>
+      </div>
+
+      {/* Humidity Segment */}
+      <div className="flex items-center justify-between pt-0.5">
+        <div className="flex flex-col">
+          <div className="flex items-baseline">
+            {!isKelembabanOffline ? (
+              <>
+                <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight tabular-nums">
+                  {kelembaban.toFixed(1)}
+                </span>
+                <span className="text-cyan-400 text-lg sm:text-xl font-bold ml-1">%</span>
+              </>
+            ) : (
+              <div className="flex items-center gap-1.5 py-1 text-slate-600">
+                <AlertTriangle size={14} className="text-amber-500/80" />
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">LURING</span>
+              </div>
+            )}
+          </div>
+          <span className="text-[9px] text-slate-550 font-extrabold tracking-wider uppercase mt-1">
+            HUMIDITY
+          </span>
+        </div>
+
+        {/* Circular droplet display and light glow ring */}
+        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all ${
+          !isKelembabanOffline 
+            ? 'bg-cyan-950/20 border border-cyan-500/35 shadow-[0_0_12px_rgba(6,182,212,0.15)] text-cyan-400' 
+            : 'bg-slate-950/40 border border-slate-800/60 text-slate-600'
+        }`}>
+          <Droplets size={18} className={!isKelembabanOffline ? 'animate-pulse' : ''} />
+        </div>
       </div>
     </div>
   );

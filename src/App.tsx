@@ -17,7 +17,8 @@ import {
   CheckCircle,
   HelpCircle,
   Info,
-  Server
+  Server,
+  Settings
 } from 'lucide-react';
 
 import { BrokerConfig, RelayState, SensorData, LogEntry } from './types';
@@ -27,6 +28,7 @@ import VariasiControl from './components/VariasiControl';
 import VoicePanel from './components/VoicePanel';
 import BrokerPanel from './components/BrokerPanel';
 import TerminalLogs from './components/TerminalLogs';
+import SettingsModal from './components/SettingsModal';
 
 // Default preconfigured brokers matching the ESP32 specifications
 const INITIAL_BROKERS: BrokerConfig[] = [
@@ -76,7 +78,17 @@ const INITIAL_RELAYS: RelayState[] = [
 ];
 
 export default function App() {
-  const [brokers, setBrokers] = useState<BrokerConfig[]>(INITIAL_BROKERS);
+  const [brokers, setBrokers] = useState<BrokerConfig[]>(() => {
+    const saved = localStorage.getItem('esp32_iot_brokers');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_BROKERS;
+      }
+    }
+    return INITIAL_BROKERS;
+  });
   const [activeBrokerId, setActiveBrokerId] = useState<number>(1);
   const [activeHardwareBrokerId, setActiveHardwareBrokerId] = useState<number>(1);
   
@@ -93,8 +105,15 @@ export default function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
   const [simulationActive, setSimulationActive] = useState<boolean>(true); // Enable simulation by default for trial ease
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   const mqttClientRef = useRef<mqtt.MqttClient | null>(null);
+
+  // Sync brokers to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('esp32_iot_brokers', JSON.stringify(brokers));
+  }, [brokers]);
 
   // Helper to append a console log string
   const addLog = (message: string, type: 'info' | 'rx' | 'tx' | 'error' | 'success', topic?: string) => {
@@ -116,24 +135,20 @@ export default function App() {
   // Switch Web-side Active MQTT Client Broker Connection
   const handleSwitchWebBroker = (id: number) => {
     setActiveBrokerId(id);
-    addLog(`Pindah web broker koneksi ke Broker ${id}...`, 'info');
+    addLog(`Switching connection to BROKER${id}...`, 'info');
   };
 
   // Publish Change Broker Request code (1, 2, or 3) to the ESP32 hardware via MQTT
   const handleSwitchHardwareBroker = (id: number) => {
     const commandTopic = 'kontrol/broker';
-    const payload = String(id);
+    const payload = `SWITCH_BROKER_${id}`;
     
-    addLog(`Mengirim sinyal ganti broker aktif ke ESP32...`, 'info');
     publishMessage(commandTopic, payload);
 
     if (simulationActive) {
       setTimeout(() => {
         setActiveHardwareBrokerId(id);
-        addLog(`[MOCK GAMEPAD] ESP32 berhasil berpindah ke Broker ${id}!`, 'success');
-        // Publish mock status update
-        const host = brokers.find((b) => b.id === id)?.server || 'unknown';
-        addLog(`RX: 'BROKER:${id}|${host}'`, 'rx', 'status/broker');
+        addLog(`Successfully connected to BROKER${id}`, 'success');
       }, 1000);
     }
   };
@@ -147,7 +162,7 @@ export default function App() {
 
   // Publish a topic & payload to MQTT Broker
   const publishMessage = (topic: string, payload: string) => {
-    addLog(`Publish: '${payload}'`, 'tx', topic);
+    addLog(`Command sent: [${topic}] ${payload}`, 'tx');
     
     if (mqttClientRef.current && connectionState === 'connected') {
       try {
@@ -179,14 +194,15 @@ export default function App() {
 
   // Select Variation Mode
   const handleSelectVariasiMode = (mode: '1' | '2' | 'STOP') => {
-    publishMessage('kontrol/variasi', mode);
-    
-    const numMode = mode === '1' ? 1 : mode === '2' ? 2 : 0;
-    setVariasiMode(numMode);
-
-    if (numMode === 0) {
-      // Turn off all relays locally too on stop
+    if (mode === 'STOP') {
+      const activeName = variasiMode === 1 ? 'Variasi 1' : variasiMode === 2 ? 'Variasi 2' : 'Variasi';
+      publishMessage(`kontrol/variasi${variasiMode || ''}`, 'STOP');
+      addLog(`${activeName} Dihentikan`, 'info');
+      setVariasiMode(0);
       setRelays((prev) => prev.map((r) => ({ ...r, state: false })));
+    } else {
+      publishMessage(`kontrol/variasi${mode}`, 'START');
+      setVariasiMode(mode === '1' ? 1 : 2);
     }
   };
 
@@ -286,7 +302,7 @@ export default function App() {
 
       client.on('connect', () => {
         setConnectionState('connected');
-        addLog(`Koneksi MQTT BERHASIL Terhubung ke ${b.server}!`, 'success');
+        addLog(`Successfully connected to BROKER${b.id}`, 'success');
         
         // Subscription block
         const subscribeTopics = [
@@ -303,10 +319,8 @@ export default function App() {
 
         subscribeTopics.forEach((t) => {
           client.subscribe(t, (err) => {
-            if (!err) {
-              addLog(`Disubscribe: '${t}'`, 'info');
-            } else {
-              addLog(`Gagal subscribe ke topik '${t}': ${err.message}`, 'error');
+            if (err) {
+              addLog(`Failed to subscribe: [${t}] - ${err.message}`, 'error');
             }
           });
         });
@@ -314,7 +328,7 @@ export default function App() {
 
       client.on('message', (topic, message) => {
         const payloadStr = message.toString().trim();
-        addLog(`RX: '${payloadStr}'`, 'rx', topic);
+        addLog(`RX: [${topic}] ${payloadStr}`, 'rx');
 
         // Process message types
         if (topic.startsWith('kontrol/relay')) {
@@ -435,176 +449,178 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#07080c] text-slate-100 flex flex-col font-sans select-none antialiased">
-      {/* Top Professional Dashboard Header */}
-      <header className="shrink-0 bg-[#090b11] border-b border-slate-800/80 sticky top-0 z-30 shadow-lg backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Top Professional Dashboard Header matching mockup */}
+      <header className="shrink-0 bg-[#090b11] border-b border-slate-850 sticky top-0 z-30 shadow-lg backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-5 py-4.5 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-              <Cpu size={22} className="stroke-[2.5]" />
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+              <Cpu size={20} className="stroke-[2.5]" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-slate-200 tracking-wider uppercase font-mono flex items-center gap-1.5 leading-none">
-                <span>ESP32 Control Hub</span>
+              <h1 className="text-sm font-extrabold text-white tracking-wider uppercase font-mono leading-none">
+                IOT COMMAND CENTER
               </h1>
-              <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1 font-mono">
-                REDUNANCY MQTT WORKSPACE • v1.4
+              <p className="text-[10px] text-slate-500 font-extrabold tracking-widest uppercase mt-1.5 font-mono">
+                ESP32 GATEWAY • CONSOLE
               </p>
             </div>
           </div>
 
-          {/* Quick status counters */}
-          <div className="flex items-center gap-3 flex-wrap font-mono text-[10px]">
-            {/* Simulation Feed option checkbox button */}
+          {/* Connected state and broker switching dropdown */}
+          <div className="flex items-center gap-3 flex-wrap text-xs">
+            {/* Simulation toggle indicator button */}
             <button
               id="simulation-mode-toggle"
               onClick={() => setSimulationActive(!simulationActive)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold border cursor-pointer transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer border ${
                 simulationActive
-                  ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
-                  : 'bg-slate-900 text-slate-500 border-slate-800'
+                  ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25'
+                  : 'bg-slate-900 border-slate-800 text-slate-600'
               }`}
-              title="Jika aktif, mensimulasikan data sensor fiktif jika modul ESP32 Anda luring"
+              title="Toggle simulated sensor feed"
             >
-              <Activity size={12} className={simulationActive ? 'animate-pulse' : ''} />
-              <span>SIMULATION: {simulationActive ? 'ON' : 'OFF'}</span>
+              SIM: {simulationActive ? 'ON' : 'OFF'}
             </button>
 
-            {/* Hardware Active Broker indicator */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 rounded-md border border-slate-800 text-slate-300">
-              <Server size={11} className="text-cyan-400" />
-              <span className="font-bold text-slate-500">BROKER:</span>
-              <span className="text-cyan-400 font-bold">#{activeHardwareBrokerId}</span>
+            {/* Connection badge capsule */}
+            <div className={`px-2.5 py-1.5 rounded-full text-[9px] font-sans font-extrabold uppercase tracking-widest border flex items-center gap-1.5 select-none ${
+              connectionState === 'connected'
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/20 text-rose-450'
+            }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${connectionState === 'connected' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
+              <span>{connectionState === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}</span>
             </div>
 
-            {/* Connection Status Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 rounded-md border border-slate-800">
-              <Wifi size={11} className={connectionState === 'connected' ? 'text-emerald-400 animate-pulse' : 'text-slate-500'} />
-              <span className="font-bold text-slate-500">WIFI:</span>
-              <span className={connectionState === 'connected' ? 'text-emerald-400 font-extrabold' : 'text-rose-455 font-extrabold'}>
-                {connectionState === 'connected' ? 'ONLINE' : 'OFFLINE'}
+            {/* Selector Dropdown displayed exactly like in the screenshot */}
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-slate-500 font-extrabold tracking-wider uppercase font-mono hidden sm:inline">
+                ACTIVE BROKER
               </span>
+              <select
+                id="header-broker-select"
+                value={activeBrokerId}
+                onChange={(e) => handleSwitchWebBroker(Number(e.target.value))}
+                className="bg-slate-900 border border-slate-800 focus:border-cyan-500 hover:border-slate-755 text-slate-300 font-mono text-xs font-bold py-1.5 px-2.5 rounded-lg cursor-pointer focus:outline-none transition-all"
+              >
+                {brokers.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name.toUpperCase()}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            {/* Custom Settings Trigger Button */}
+            <button
+              id="header-settings-btn"
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-1.5 px-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-705 hover:bg-slate-850 text-slate-400 hover:text-white cursor-pointer flex items-center gap-1.5 transition-all text-xs shrink-0 font-sans"
+              title="Konfigurasi Broker"
+            >
+              <Settings size={13} className="text-cyan-400" />
+              <span className="font-mono text-[9px] font-extrabold uppercase hidden sm:inline">SETTING</span>
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Hero Banner Intro */}
-      <div className="bg-gradient-to-r from-[#0a0c14] to-transparent border-b border-slate-800/60 p-6 shrink-0">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <span className="text-[9px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-0.5 rounded font-mono font-bold uppercase tracking-widest">
-              Smart IoT Core Dashboard
-            </span>
-            <h2 className="text-lg font-bold text-white tracking-widest uppercase font-mono mt-1.5">
-              Sistem Otomasi Node ESP32
-            </h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl">
-              Hubungkan panel web ini dengan broker MQTT Anda. Kelola relay listrik secara paralel, pantau suhu sensor langsung, dan manfaatkan asisten perintah suara internal.
-            </p>
-          </div>
-
-          {/* Quick Stats Panel */}
-          <div className="flex gap-4 p-3 bg-black/40 border border-slate-800/85 rounded-xl shrink-0 font-mono">
-            <div className="text-center px-4 border-r border-slate-850">
-              <span className="text-[9px] text-slate-550 uppercase tracking-widest font-bold">SUHU</span>
-              <p className="text-base font-bold text-emerald-450 mt-0.5">
-                {sensorData.suhu !== null ? `${sensorData.suhu.toFixed(1)}°C` : '—'}
-              </p>
-            </div>
-            <div className="text-center px-4">
-              <span className="text-[9px] text-slate-550 uppercase tracking-widest font-bold">KELEMBABAN</span>
-              <p className="text-base font-bold text-cyan-400 mt-0.5">
-                {sensorData.kelembaban !== null ? `${sensorData.kelembaban.toFixed(1)}%` : '—'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-       {/* Main Single-Page Bento Dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 flex flex-col gap-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* COLUMN 1: SENSOR, VOICE ASSISTANT & MONITOR LOGS (lg:col-span-4) */}
-          <div className="lg:col-span-4 flex flex-col gap-4 w-full">
-            {/* Live Sensor Metrics Gauges - Side-by-Side to be compact */}
-            <div className="grid grid-cols-2 gap-3 shrink-0">
-              <MetricCard type="suhu" value={sensorData.suhu} />
-              <MetricCard type="kelembaban" value={sensorData.kelembaban} />
-            </div>
-
-            {/* Voice Assistant Panel Component */}
+      {/* Main Single-Page Bento Dashboard (No hero section for ultimate layout density) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-5 flex flex-col gap-6">
+        {/* Three Columns Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          
+          {/* COLUMN 1 (Left): ENVIRONMENT METRICS & VOICE ASSISTANT */}
+          <div className="lg:col-span-3 flex flex-col gap-5 justify-between">
+            <MetricCard suhu={sensorData.suhu} kelembaban={sensorData.kelembaban} />
             <VoicePanel
               lastSuhu={sensorData.suhu}
               lastKelembaban={sensorData.kelembaban}
               onVoiceCommand={handleVoiceCommand}
             />
-
-            {/* Live debug serial logs integrated at the bottom of Column 1 to balance the space! */}
-            <TerminalLogs className="w-full" logs={logs} onClearLogs={handleClearLogs} />
           </div>
 
-          {/* COLUMN 2: RELAY CONTROLS, SEQUENCE & BROKER SWITCHER (lg:col-span-8) */}
-          <div className="lg:col-span-8 flex flex-col gap-4 w-full">
-            {/* Split row: Relays and Sequence Control side-by-side on desktop */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              {/* 4 Relay Grid switches */}
-              <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-3 border-b border-cyan-900/10 pb-2">
-                  <div>
-                    <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-                      <Cpu size={14} className="text-cyan-400" />
-                      <span>Kontrol Sirkuler Relay Fisik</span>
-                    </h2>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
-                      Aktifkan atau matikan sirkuit relai daya ESP32 secara manual
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2.5">
-                  {relays.map((r) => (
-                    <RelayControl
-                      key={r.id}
-                      relay={r}
-                      onToggle={handleToggleRelay}
-                      variasiActive={variasiMode !== 0}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Variasi Relay Component */}
-              <VariasiControl
-                activeMode={variasiMode}
-                jedaMs={variasiJeda}
-                onSelectMode={handleSelectVariasiMode}
-                onSelectJeda={handleSelectVariasiJeda}
-              />
+          {/* COLUMN 2 (Middle): RELAY GRID & SEQUENCE CONTROL */}
+          <div className="lg:col-span-5 flex flex-col gap-5 justify-between">
+            {/* Relays 2x2 grid directly sitting item-stretch */}
+            <div className="grid grid-cols-2 gap-4">
+              {relays.map((r) => (
+                <RelayControl
+                  key={r.id}
+                  relay={r}
+                  onToggle={handleToggleRelay}
+                  variasiActive={variasiMode !== 0}
+                />
+              ))}
             </div>
 
-            {/* Broker Redundancy Switcher & Connection Gateway Panel */}
-            <BrokerPanel
-              brokers={brokers}
-              activeBrokerId={activeBrokerId}
-              activeHardwareBrokerId={activeHardwareBrokerId}
-              connectionState={connectionState}
-              onSwitchHardwareBroker={handleSwitchHardwareBroker}
-              onSwitchWebBroker={handleSwitchWebBroker}
-              onUpdateBrokerWSS={handleUpdateBrokerWSSSettings}
+            {/* Sequence control stack */}
+            <VariasiControl
+              activeMode={variasiMode}
+              jedaMs={variasiJeda}
+              onSelectMode={handleSelectVariasiMode}
+              onSelectJeda={handleSelectVariasiJeda}
             />
           </div>
+
+          {/* COLUMN 3 (Right): ACTIVITY LOG (full vertical matching stretch) */}
+          <div className="lg:col-span-4 flex flex-col">
+            <TerminalLogs className="flex-1" logs={logs} onClearLogs={handleClearLogs} />
+          </div>
+
+        </div>
+
+        {/* Collapsible Advanced Credentials Redundancy Hub */}
+        <div className="border border-slate-800/60 rounded-xl bg-slate-900/10 overflow-hidden mt-2">
+          <button
+            id="expand-advanced-settings-trigger"
+            onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+            className="w-full px-5 py-3.5 flex justify-between items-center text-xs font-bold text-slate-400 select-none cursor-pointer bg-slate-900/20 hover:bg-slate-900/40 transition-colors"
+          >
+            <span className="tracking-widest uppercase text-[10px]">
+              {showAdvancedSettings ? 'Hide Broker Server Credentials' : 'Configure Redundant Servers & WebSocket WSS Channels'}
+            </span>
+            <span className="text-cyan-400 font-mono text-[11px] uppercase">
+              {showAdvancedSettings ? '[-] CLOSE' : '[+] ADJUST CREDENTIALS'}
+            </span>
+          </button>
+
+          {showAdvancedSettings && (
+            <div className="border-t border-slate-850 p-4 transition-all duration-300">
+              <BrokerPanel
+                brokers={brokers}
+                activeBrokerId={activeBrokerId}
+                activeHardwareBrokerId={activeHardwareBrokerId}
+                connectionState={connectionState}
+                onSwitchHardwareBroker={handleSwitchHardwareBroker}
+                onSwitchWebBroker={handleSwitchWebBroker}
+                onUpdateBrokerWSS={handleUpdateBrokerWSSSettings}
+              />
+            </div>
+          )}
         </div>
       </main>
 
       {/* Footer Branding */}
-      <footer className="shrink-0 bg-[#090b11] border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 font-mono uppercase tracking-wider text-[10px]">
+      <footer className="shrink-0 bg-[#090b11] border-t border-slate-800/80 py-5 text-center text-[10px] text-slate-500 font-mono uppercase tracking-widest mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 ESP32 Control Hub. Redundancy Broker Environment.</p>
+          <p>© 2026 IOT COMMAND CENTER. ESP32 REDUNDANCY CONTROLLER.</p>
           <div className="flex gap-4">
-            <span className="text-slate-600">ALL SERVICES STATUS: ACTIVE</span>
+            <span className="text-slate-600">ALL SYSTEMS ONLINE • FEED DECODER OK</span>
           </div>
         </div>
       </footer>
+
+      {/* Settings Modal Component for configuring brokers */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        brokers={brokers}
+        onSaveAllBrokers={(newBrokers) => {
+          setBrokers(newBrokers);
+          addLog('Semua parameter broker berhasil diperbarui dan disimpan!', 'success');
+        }}
+      />
     </div>
   );
 }
