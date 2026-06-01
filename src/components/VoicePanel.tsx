@@ -181,25 +181,25 @@ export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand }:
   ];
 
   return (
-    <div id="voice-command-panel" className="bg-cyan-950/10 border border-cyan-900/30 rounded-2xl p-6 flex flex-col transition-all duration-300">
+    <div id="voice-command-panel" className="bg-cyan-950/10 border border-cyan-900/25 rounded-xl p-4 flex flex-col transition-all duration-300">
       {/* Header section with pulsating cyber dot */}
-      <div className="flex items-center justify-between mb-5 border-b border-cyan-900/20 pb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
-            <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'}`} />
+      <div className="flex items-center justify-between mb-3 border-b border-cyan-900/15 pb-2">
+        <div className="flex items-center space-x-2">
+          <div className="w-6 h-6 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+            <div className={`w-1.5 h-1.5 rounded-full ${isListening ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'}`} />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400">Voice Command Engine</h3>
-            <p className="text-[9px] text-slate-500 font-mono tracking-wider">SYSTEM_ID: ESP32_AMQP_04X_SPEECH</p>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">Voice Command Engine</h3>
+            <p className="text-[8px] text-slate-550 font-mono tracking-wider">ESP32_SPEECH_01X</p>
           </div>
         </div>
 
         <button
           id="voice-sound-toggle"
           onClick={() => setSpeechEnabled(!speechEnabled)}
-          className={`h-7 px-3 rounded-md text-[10px] uppercase font-mono font-bold tracking-wider border cursor-pointer select-none transition-all ${
+          className={`h-6 px-2 rounded text-[8px] uppercase font-mono font-bold tracking-wider border cursor-pointer select-none transition-all ${
             speechEnabled
-              ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
+              ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
               : 'bg-slate-900 text-slate-600 border-slate-800'
           }`}
           title={speechEnabled ? "Audible feedback is on" : "Muted"}
@@ -208,93 +208,97 @@ export default function VoicePanel({ lastSuhu, lastKelembaban, onVoiceCommand }:
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Core trigger block */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center bg-black/40 border border-slate-800 rounded-xl p-5 text-center relative overflow-hidden">
-          <div className="relative w-24 h-24 flex items-center justify-center my-2">
+        <div className="lg:col-span-4 flex flex-col items-center justify-center bg-black/40 border border-slate-800/80 rounded-xl p-3 text-center relative overflow-hidden">
+          <div className="relative w-16 h-16 flex items-center justify-center my-1">
             {isListening && (
               <>
                 <div className="absolute inset-x-0 bg-cyan-500/10 rounded-full animate-ping" />
-                <div className="absolute inset-y-0 bg-cyan-500/20 rounded-full animate-pulse" />
+                <div className="absolute inset-y-0 bg-cyan-500/15 rounded-full animate-pulse" />
               </>
             )}
             
             <button
               id="voice-mic-trigger"
               onClick={handleToggleListening}
-              className={`relative z-10 w-16 h-16 rounded-full border flex items-center justify-center cursor-pointer transition-all duration-300 ${
+              className={`relative z-10 w-11 h-11 rounded-full border flex items-center justify-center cursor-pointer transition-all duration-300 ${
                 isListening
-                  ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                  ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.4)]'
+                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
               }`}
             >
-              {isListening ? <Mic size={24} className="animate-pulse" /> : <MicOff size={24} />}
+              {isListening ? <Mic size={16} className="animate-pulse" /> : <MicOff size={16} />}
             </button>
           </div>
 
-          <span className={`text-[10px] uppercase font-mono font-bold tracking-widest ${isListening ? 'text-emerald-400 animate-pulse' : 'text-slate-500'}`}>
-            {isListening ? 'LISTENING_VOICE_STREAM' : 'TRIGGER MICROPHONE'}
+          <span className={`text-[8px] uppercase font-mono font-bold tracking-widest ${isListening ? 'text-emerald-400 animate-pulse' : 'text-slate-500'}`}>
+            {isListening ? 'REC STREAM' : 'TRIGGER MIC'}
           </span>
 
           {errorText && (
-            <div className="mt-3 p-2 bg-rose-500/10 border border-rose-500/20 rounded-lg text-[9px] text-rose-400 flex gap-1 items-start text-left font-mono">
-              <Info size={12} className="shrink-0 mt-0.5" />
+            <div className="mt-1.5 p-1.5 bg-rose-500/10 border border-rose-500/20 rounded text-[8px] text-rose-400 flex gap-1 items-start text-left font-mono">
+              <Info size={10} className="shrink-0 mt-0.5" />
               <span>{errorText}</span>
             </div>
           )}
         </div>
 
         {/* Black interactive logs terminal matches "listening..." in design HTML */}
-        <div className="lg:col-span-8 flex flex-col gap-4">
-          <div className="flex-1 bg-black/40 rounded-xl p-4 font-mono text-xs text-slate-400 min-h-[140px] flex flex-col justify-between border border-slate-800/80">
-            <div className="space-y-1.5 overflow-hidden flex-1 scrollbar-thin">
+        <div className="lg:col-span-8 flex flex-col gap-3">
+          <div className="flex-1 bg-black/40 rounded-xl p-3 font-mono text-[10px] text-slate-400 min-h-[90px] flex flex-col justify-between border border-slate-800/80">
+            <div className="space-y-1 overflow-hidden flex-1 scrollbar-thin">
               {isListening ? (
-                <p className="text-emerald-400 italic font-sans mb-2 animate-pulse flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  Listening...
+                <p className="text-emerald-400 italic font-sans mb-1 animate-pulse flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
+                  Mendengarkan...
                 </p>
               ) : (
-                <p className="text-slate-500 italic font-sans mb-2">Standby — Press trigger and speak inside receiver scope</p>
+                <p className="text-slate-650 italic font-sans mb-1 text-[9px]">Klik mikrofon di samping lalu bicaralah</p>
               )}
 
               {transcript && (
-                <p className="text-white opacity-80 font-medium">
+                <p className="text-white opacity-90 font-medium">
                   &gt; "{transcript}" {!isFinalTranscript && <span className="text-cyan-500 animate-pulse">...</span>}
                 </p>
               )}
 
               {/* Reverse order of logs for modern downward-flowing log feel */}
-              {voiceLogs.filter(log => log.msg !== transcript).slice(0, 4).reverse().map((log) => (
+              {voiceLogs.filter(log => log.msg !== transcript).slice(0, 2).reverse().map((log) => (
                 <p key={log.id} className={
                   log.actor === 'err' 
                     ? 'text-rose-400' 
                     : log.actor === 'system' 
-                      ? 'text-cyan-400 font-semibold' 
-                      : 'opacity-50'
+                      ? 'text-cyan-400 font-semibold text-[9px]' 
+                      : 'opacity-50 text-[9px]'
                 }>
                   &gt; {log.msg}
                 </p>
               ))}
             </div>
 
-            <div className="border-t border-slate-900 mt-2 pt-2 flex items-center justify-between text-[9px] text-slate-600 uppercase tracking-widest">
-              <span>STATUS ENGINE: READY</span>
+            <div className="border-t border-slate-900 mt-1.5 pt-1.5 flex items-center justify-between text-[8px] text-slate-600 uppercase tracking-widest">
+              <span>VOICE STREAM STATUS: OK</span>
               <span>AUDIO BUFFER</span>
             </div>
           </div>
 
           {/* Quick reference guide of command structures */}
-          <div className="bg-black/20 border border-slate-850/60 rounded-xl p-3">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
-              <HelpCircle size={12} className="text-cyan-500" />
-              <span>Supported Command Snippets</span>
+          <div className="bg-black/20 border border-slate-850/50 rounded-xl p-2.5">
+            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1 mb-1.5">
+              <HelpCircle size={10} className="text-cyan-500" />
+              <span>Contoh Perintah Suara</span>
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[10px]">
-              {supportedCommands.map((item, i) => (
-                <div key={i} className="px-2 py-1 border border-slate-800 bg-black/20 rounded font-mono text-slate-400 text-center hover:border-cyan-800 transition-colors">
-                  <span className="text-cyan-400 block truncate" title={item.cmd}>"{item.cmd}"</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[8.5px]">
+              {supportedCommands.slice(0, 4).map((item, i) => (
+                <div key={i} className="px-1.5 py-0.5 border border-slate-800 bg-black/20 rounded font-mono text-slate-450 text-center hover:border-cyan-850 transition-colors truncate" title={item.cmd}>
+                  "{item.cmd}"
                 </div>
               ))}
+              {/* Fallback to fill layout */}
+              <div className="px-1.5 py-0.5 border border-slate-800 bg-black/20 rounded font-mono text-slate-450 text-center truncate">
+                "Suhu dht"
+              </div>
             </div>
           </div>
         </div>

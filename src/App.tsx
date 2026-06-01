@@ -522,12 +522,12 @@ export default function App() {
       </div>
 
       {/* Main Single-Page Bento Dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           {/* COLUMN 1: SENSOR & VOICE ASSISTANT COMPANION (lg:col-span-4) */}
-          <div className="lg:col-span-4 flex flex-col gap-6 w-full">
+          <div className="lg:col-span-4 flex flex-col gap-4 w-full">
             {/* Live Sensor Metrics Gauges */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
               <MetricCard type="suhu" value={sensorData.suhu} />
               <MetricCard type="kelembaban" value={sensorData.kelembaban} />
             </div>
@@ -541,22 +541,22 @@ export default function App() {
           </div>
 
           {/* COLUMN 2: CONTROLS, SEQUENCE & GATEWAYS (lg:col-span-8) */}
-          <div className="lg:col-span-8 flex flex-col gap-6 w-full">
+          <div className="lg:col-span-8 flex flex-col gap-4 w-full">
             {/* 4 Relay Grid switches */}
-            <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 shadow-lg backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-5 border-b border-cyan-900/10 pb-3">
+            <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-3 border-b border-cyan-900/10 pb-2">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                    <Cpu size={16} className="text-cyan-400" />
+                  <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+                    <Cpu size={14} className="text-cyan-400" />
                     <span>Kontrol Sirkuler Relay Fisik</span>
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-[10px] text-slate-500 mt-0.5">
                     Aktifkan atau matikan sirkuit relai daya ESP32 secara manual
                   </p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {relays.map((r) => (
                   <RelayControl
                     key={r.id}

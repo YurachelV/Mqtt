@@ -45,35 +45,35 @@ export default function VariasiControl({
   const activeRelayIdx = getActiveRelayIndex();
 
   return (
-    <div id="variasi-panel" className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 shadow-lg backdrop-blur-sm transition-all duration-300">
-      <div className="flex items-center justify-between mb-5">
+    <div id="variasi-panel" className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm transition-all duration-300">
+      <div className="flex items-center justify-between mb-4 border-b border-cyan-900/10 pb-2">
         <div>
-          <h2 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-            <FastForward size={16} className="text-cyan-400" />
+          <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5 animate-pulse-slow">
+            <FastForward size={14} className="text-cyan-400" />
             <span>Sequence Control (Variasi)</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">Siklus otomatis relay terprogram berkecepatan tinggi</p>
+          <p className="text-[10px] text-slate-500 mt-0.5">Siklus otomatis relay terprogram berkecepatan tinggi</p>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold px-2.5 py-1 rounded-md border bg-black/40 text-slate-400 border-cyan-900/30">
+        <div className="flex items-center gap-1 text-[9px] uppercase font-bold px-2 py-0.5 rounded border bg-black/40 text-slate-400 border-cyan-900/30">
           STATUS: <span className={activeMode !== 0 ? "text-cyan-400 animate-pulse font-mono" : "text-slate-500 font-mono"}>
-            {activeMode === 1 ? 'MODE 1 (MAJU)' : activeMode === 2 ? 'MODE 2 (MUNDUR)' : 'STOP'}
+            {activeMode === 1 ? 'MODE 1' : activeMode === 2 ? 'MODE 2' : 'STOP'}
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left Side: Mode Selection Buttons */}
-        <div className="flex flex-col justify-between gap-4">
-          <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Pola Sequence</span>
+        <div className="flex flex-col justify-between gap-3">
+          <span className="text-[9px] text-slate-500 font-bold tracking-widest uppercase mb-1">Pola Sequence</span>
           
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             {/* Mode 1: Maju */}
             <button
               id="cmd-variasi-1"
               onClick={() => onSelectMode('1')}
-              className={`py-3.5 px-3 rounded-lg text-xs font-bold uppercase cursor-pointer transition-all ${
+              className={`py-2 px-2.5 rounded-lg text-[10px] font-bold uppercase cursor-pointer transition-all ${
                 activeMode === 1
-                  ? 'bg-cyan-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                  ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(6,182,212,0.3)]'
                   : 'bg-slate-800/60 hover:bg-slate-800 text-slate-450'
               }`}
             >
@@ -84,9 +84,9 @@ export default function VariasiControl({
             <button
               id="cmd-variasi-2"
               onClick={() => onSelectMode('2')}
-              className={`py-3.5 px-3 rounded-lg text-xs font-bold uppercase cursor-pointer transition-all ${
+              className={`py-2 px-2.5 rounded-lg text-[10px] font-bold uppercase cursor-pointer transition-all ${
                 activeMode === 2
-                  ? 'bg-cyan-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                  ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(6,182,212,0.3)]'
                   : 'bg-slate-800/60 hover:bg-slate-800 text-slate-450'
               }`}
             >
@@ -97,10 +97,10 @@ export default function VariasiControl({
             <button
               id="cmd-variasi-stop"
               onClick={() => onSelectMode('STOP')}
-              className={`py-3.5 px-3 rounded-lg text-xs font-bold uppercase cursor-pointer transition-all ${
+              className={`py-2 px-2.5 rounded-lg text-[10px] font-bold uppercase cursor-pointer transition-all ${
                 activeMode === 0
-                  ? 'bg-red-950/60 text-red-400 border border-red-500/30'
-                  : 'bg-red-900/40 text-red-400 border border-red-500/50 hover:bg-red-900/50'
+                  ? 'bg-red-950/65 text-red-400 border border-red-500/35 animate-none'
+                  : 'bg-red-900/30 text-red-400 border border-red-500/40 hover:bg-red-900/45'
               }`}
             >
               Stop
@@ -108,10 +108,10 @@ export default function VariasiControl({
           </div>
 
           {/* Jeda Slider */}
-          <div className="flex flex-col gap-2 mt-2">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Variation Speed</span>
-              <span className="text-cyan-400 font-bold font-mono px-2 py-0.5 rounded bg-black/40 border border-slate-800">
+          <div className="flex flex-col gap-1.5 mt-1">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">Interval Jeda</span>
+              <span className="text-cyan-400 font-bold font-mono px-1.5 py-0.2 rounded bg-black/40 border border-slate-800">
                 {jedaMs} ms
               </span>
             </div>
@@ -124,40 +124,40 @@ export default function VariasiControl({
               step="10"
               value={jedaMs}
               onChange={(e) => onSelectJeda(Number(e.target.value))}
-              className="w-full accent-cyan-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg appearance-none"
+              className="w-full accent-cyan-500 cursor-pointer h-1 bg-slate-800 rounded appearance-none"
             />
-            <div className="flex justify-between text-[9px] text-slate-500 font-mono">
-              <span>Fast (50 ms)</span>
-              <span>Slow (500 ms)</span>
+            <div className="flex justify-between text-[8px] text-slate-500 font-mono">
+              <span>Cepat (50ms)</span>
+              <span>Lambat (500ms)</span>
             </div>
           </div>
         </div>
 
         {/* Right Side: Virtual Board Glow Sequencer */}
-        <div className="flex flex-col bg-black/40 border border-slate-800 rounded-xl p-4 justify-between min-h-[160px]">
-          <span className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-2">Virtual Light Sequencer Monitor</span>
+        <div className="flex flex-col bg-black/40 border border-slate-800 rounded-xl p-3 justify-between min-h-[120px]">
+          <span className="text-[9px] font-bold text-slate-500 tracking-wider uppercase mb-1">Visual Monitor Sequencer</span>
 
           {/* Visual lights matrix */}
-          <div className="grid grid-cols-4 gap-3 my-auto py-2">
+          <div className="grid grid-cols-4 gap-2 my-auto py-1">
             {[1, 2, 3, 4].map((num, i) => {
               const active = activeMode !== 0 && activeRelayIdx === i;
               return (
-                <div key={num} className="flex flex-col items-center gap-2">
-                  <div className="text-[9px] font-semibold text-slate-500 font-mono">CH{num}</div>
-                  <div className={`relative w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-150 ${
+                <div key={num} className="flex flex-col items-center gap-1">
+                  <div className="text-[8px] font-semibold text-slate-500 font-mono">CH-0{num}</div>
+                  <div className={`relative w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-150 ${
                     active
-                      ? 'bg-[#050508] border-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.6)] text-cyan-400'
+                      ? 'bg-[#050508] border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)] text-cyan-400'
                       : 'bg-slate-900 border-slate-800 text-slate-600'
                   }`}>
                     {active && (
                       <motion.div
                         layoutId="activeGlow"
-                        className="absolute inset-0 rounded-full border border-cyan-400/30 filter opacity-40 pointer-events-none"
+                        className="absolute inset-0 rounded-full border border-cyan-400/25 filter opacity-40 pointer-events-none"
                       />
                     )}
-                    <span className="font-mono text-xs font-bold">0{num}</span>
+                    <span className="font-mono text-[10px] font-bold">0{num}</span>
                   </div>
-                  <span className={`text-[8px] font-mono uppercase tracking-widest ${active ? 'text-cyan-400 animate-pulse' : 'text-slate-600'}`}>
+                  <span className={`text-[7px] font-mono uppercase tracking-widest ${active ? 'text-cyan-400 font-bold' : 'text-slate-600'}`}>
                     {active ? 'ON' : 'OFF'}
                   </span>
                 </div>
@@ -165,10 +165,10 @@ export default function VariasiControl({
             })}
           </div>
 
-          <div className="text-[9px] font-mono text-slate-600 text-center uppercase tracking-widest mt-2">
+          <div className="text-[8px] font-mono text-slate-600 text-center uppercase tracking-widest mt-1">
             {activeMode !== 0 
-              ? 'Sequence Cycle Transmitting' 
-              : 'IDLE STATUS BUFFER READY'
+              ? 'TRANSMITTING MATRIX PACKET' 
+              : 'IDLE BUFFER READY'
             }
           </div>
         </div>

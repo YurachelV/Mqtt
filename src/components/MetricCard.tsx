@@ -63,31 +63,31 @@ export default function MetricCard({ type, value }: MetricProps) {
   return (
     <div 
       id={`metric-card-${type}`} 
-      className="relative bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center space-y-2 overflow-hidden transition-all duration-300"
+      className="relative bg-slate-900/40 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center space-y-1 overflow-hidden transition-all duration-300"
     >
       {/* Background icon decoration with lower opacity */}
-      <div className="absolute top-0 right-0 p-4 opacity-5 text-slate-400">
-        <Icon size={48} />
+      <div className="absolute top-0 right-0 p-3 opacity-5 text-slate-400">
+        <Icon size={36} />
       </div>
 
-      <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">{label}</p>
+      <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{label}</p>
       
       <div className="flex items-baseline justify-center">
         {value !== null ? (
-          <div className="text-6xl font-extralight text-white tracking-tighter tabular-nums flex items-baseline">
+          <div className="text-3xl sm:text-4xl font-light text-white tracking-tight tabular-nums flex items-baseline">
             <span>{displayValue}</span>
-            <span className="text-cyan-500 text-2xl ml-0.5">{unit}</span>
+            <span className="text-cyan-500 text-lg ml-0.5">{unit}</span>
           </div>
         ) : (
-          <div className="text-3xl font-light text-slate-600 tracking-wider animate-pulse flex items-center justify-center py-4">
-            <AlertTriangle size={20} className="text-amber-500 mr-2" />
-            <span className="text-xs uppercase tracking-widest font-bold">LURING</span>
+          <div className="text-xl font-light text-slate-600 tracking-wider animate-pulse flex items-center justify-center py-2">
+            <AlertTriangle size={16} className="text-amber-500 mr-1.5" />
+            <span className="text-[10px] uppercase tracking-widest font-mono font-bold">LURING</span>
           </div>
         )}
       </div>
 
       {/* Progress Bar Indicator from Immersive UI theme */}
-      <div className="w-full h-1 bg-slate-800/80 rounded-full mt-4 overflow-hidden">
+      <div className="w-full h-1 bg-slate-800/80 rounded-full mt-2 overflow-hidden">
         {value !== null ? (
           <motion.div 
             initial={{ width: 0 }}
@@ -101,7 +101,7 @@ export default function MetricCard({ type, value }: MetricProps) {
       </div>
 
       {/* Footer descriptor text */}
-      <div className="w-full text-center pt-2 text-[10px] font-mono text-slate-500">
+      <div className="w-full text-center pt-1 text-[9px] font-mono text-slate-500">
         {value !== null ? (
           <span>
             {isSuhu 
