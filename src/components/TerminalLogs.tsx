@@ -32,7 +32,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
   });
 
   return (
-    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-[260px] md:h-[280px] transition-all duration-300 ${className || ''}`}>
+    <div id="terminal-logs-panel" className={`bg-slate-900/40 border border-slate-800 rounded-xl p-4 shadow-lg backdrop-blur-sm flex flex-col h-[340px] max-h-[340px] min-h-[340px] overflow-hidden transition-all duration-300 ${className || ''}`}>
       {/* Header Panel */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5 pb-1.5 border-b border-cyan-900/10 shrink-0">
         <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all ${
               filter === 'all'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
             }`}
           >
             ALL
@@ -63,7 +63,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'rx'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
             }`}
           >
             <ArrowDownLeft size={8} />
@@ -76,7 +76,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'tx'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
             }`}
           >
             <ArrowUpRight size={8} />
@@ -89,7 +89,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
             className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase font-bold border cursor-pointer select-none transition-all flex items-center gap-0.5 ${
               filter === 'sys_err'
                 ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-700'
+                : 'bg-slate-900 text-slate-500 border-slate-800/40 hover:border-slate-705'
             }`}
           >
             <Cpu size={8} />
@@ -113,7 +113,7 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
       {/* Console log list window */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto bg-black/40 border border-slate-800/80 rounded-xl p-2.5 font-mono text-[10px] space-y-1 scrollbar-thin overflow-x-hidden min-h-[100px]"
+        className="flex-1 overflow-y-auto bg-black/40 border border-slate-800/80 rounded-xl p-2.5 font-mono text-[10px] space-y-1.5 scrollbar-thin overflow-x-hidden min-h-[100px]"
       >
         {filteredLogs.length === 0 ? (
           <div className="text-slate-700 italic flex items-center justify-center h-full">
@@ -123,33 +123,59 @@ export default function TerminalLogs({ logs, onClearLogs, className }: TerminalL
           filteredLogs.map((log) => {
             const timeStr = log.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            let colorClass = 'text-slate-400';
-            let iconText = '⚙️ [SYS]';
+            let colorClass = 'text-slate-350';
+            let iconText = 'SYS';
             
             if (log.type === 'rx') {
-              colorClass = 'text-emerald-400';
-              iconText = '📥 [RX]';
+              colorClass = 'text-emerald-300';
+              iconText = 'RX';
             } else if (log.type === 'tx') {
-              colorClass = 'text-cyan-400';
-              iconText = '📤 [TX]';
+              colorClass = 'text-cyan-300';
+              iconText = 'TX';
             } else if (log.type === 'error') {
               colorClass = 'text-rose-450 font-semibold';
-              iconText = '🚨 [ERR]';
+              iconText = 'ERR';
             } else if (log.type === 'success') {
-              colorClass = 'text-cyan-400 font-bold';
-              iconText = '✅ [OK]';
+              colorClass = 'text-teal-300 font-bold';
+              iconText = 'OK';
             }
 
             return (
-              <div key={log.id} className="flex gap-1.5 leading-normal hover:bg-slate-900/30 p-0.5 rounded transition-all">
-                <span className="text-slate-600 select-none shrink-0">[{timeStr}]</span>
-                <span className={`${colorClass} shrink-0 select-none`}>{iconText}</span>
-                {log.topic && (
-                  <span className="text-cyan-400 font-semibold shrink-0">
-                    [{log.topic}] ➜
+              <div 
+                key={log.id} 
+                className="flex items-start md:items-center justify-between gap-2.5 leading-relaxed hover:bg-slate-900/30 p-1 md:p-0.5 rounded transition-all border-b border-slate-955/20 last:border-0"
+              >
+                {/* Meta details with static spacing for gorgeous alignment */}
+                <div className="flex items-center gap-2 shrink-0 select-none">
+                  <span className="text-slate-600 font-mono text-[9px] min-w-[50px]">
+                    {timeStr}
                   </span>
+                  
+                  {/* Mode badge */}
+                  <span className={`px-1.5 py-0.2 rounded text-[8px] font-extrabold font-mono tracking-wider shrink-0 uppercase border transition-all ${
+                    log.type === 'rx' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                    log.type === 'tx' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' :
+                    log.type === 'error' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                    log.type === 'success' ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' :
+                    'bg-slate-800/40 text-slate-500 border-slate-700/25'
+                  }`}>
+                    {iconText}
+                  </span>
+                </div>
+
+                {/* Topic if exists */}
+                {log.topic ? (
+                  <span className="text-[9px] font-mono font-bold text-cyan-400/90 bg-cyan-950/20 border border-cyan-800/15 px-1.5 py-0.2 rounded truncate max-w-[140px] shrink-0">
+                    {log.topic}
+                  </span>
+                ) : (
+                  <div className="w-[4px] h-[1px] bg-slate-800 shrink-0 select-none" />
                 )}
-                <span className={`${colorClass} whitespace-pre-wrap break-all flex-1`}>{log.message}</span>
+
+                {/* Message payload content with smart word-level formatting */}
+                <span className={`font-mono text-[10.5px] break-words flex-1 min-w-0 pr-1 select-text ${colorClass}`}>
+                  {log.message}
+                </span>
               </div>
             );
           })

@@ -133,7 +133,7 @@ export default function App() {
         addLog(`[MOCK GAMEPAD] ESP32 berhasil berpindah ke Broker ${id}!`, 'success');
         // Publish mock status update
         const host = brokers.find((b) => b.id === id)?.server || 'unknown';
-        addLog(`[MOCK RX] status/broker => BROKER:${id}|${host}`, 'rx', 'status/broker');
+        addLog(`RX: 'BROKER:${id}|${host}'`, 'rx', 'status/broker');
       }, 1000);
     }
   };
@@ -398,8 +398,8 @@ export default function App() {
         lastUpdated: new Date()
       });
 
-      addLog(`[MOCK RX] sensor/suhu => ${mockSuhu.toFixed(1)}`, 'rx', 'sensor/suhu');
-      addLog(`[MOCK RX] sensor/kelembaban => ${mockKelembaban.toFixed(1)}`, 'rx', 'sensor/kelembaban');
+      addLog(`RX: '${mockSuhu.toFixed(1)}'`, 'rx', 'sensor/suhu');
+      addLog(`RX: '${mockKelembaban.toFixed(1)}'`, 'rx', 'sensor/kelembaban');
     }, 6000);
 
     return () => clearInterval(sensorInterval);
@@ -421,7 +421,7 @@ export default function App() {
         }))
       );
 
-      addLog(`[MOCK TX/RX] Variasi ${variasiMode} | Jeda ${variasiJeda}ms | Relay ${simulatedActiveIndex + 1} ON`, 'rx', 'kontrol/variasi-siklus');
+      addLog(`RX: 'Variasi ${variasiMode} | Jeda ${variasiJeda}ms | Relay ${simulatedActiveIndex + 1} ON'`, 'rx', 'kontrol/variasi-siklus');
       step++;
     }, variasiJeda);
 
@@ -540,7 +540,7 @@ export default function App() {
             />
 
             {/* Live debug serial logs integrated at the bottom of Column 1 to balance the space! */}
-            <TerminalLogs className="h-[280px]" logs={logs} onClearLogs={handleClearLogs} />
+            <TerminalLogs className="w-full" logs={logs} onClearLogs={handleClearLogs} />
           </div>
 
           {/* COLUMN 2: RELAY CONTROLS, SEQUENCE & BROKER SWITCHER (lg:col-span-8) */}
