@@ -128,7 +128,6 @@ export default function App() {
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
-  const [simulationActive, setSimulationActive] = useState<boolean>(true); // Enable simulation by default for trial ease
   const [showAdvancedSettings, setShowAdvancedSettings] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
@@ -170,13 +169,7 @@ export default function App() {
     const payload = String(id);
     
     publishMessage(commandTopic, payload);
-
-    if (simulationActive) {
-      setTimeout(() => {
-        setActiveHardwareBrokerId(id);
-        addLog(`Successfully connected to BROKER${id}`, 'success');
-      }, 1000);
-    }
+    addLog(`Mengirim instruksi ganti broker hardware ke BROKER${id}...`, 'tx');
   };
 
   const handleUpdateBrokerWSSSettings = (id: number, wsUrl: string, user: string, pass: string, clientId: string, useProxy: boolean) => {
@@ -419,59 +412,7 @@ export default function App() {
     };
   }, [activeBrokerId, brokers]);
 
-  // --- MOCK SIMULATOR FEED ---
-  // In addition to real MQTT, if simulation is enabled, generate periodic feeds or responses.
-  // This allows full UI testing without physically setting up the Arduino device.
-  useEffect(() => {
-    if (!simulationActive) return;
-
-    addLog('[SIMULATOR] Mode simulasi diaktifkan. Mengirimkan data sensor bayangan...', 'success');
-
-    // Create periodic sensor loop
-    const sensorInterval = setInterval(() => {
-      const mockSuhu = 26.5 + Math.sin(Date.now() / 30000) * 4.5 + (Math.random() - 0.5) * 0.4;
-      const mockKelembaban = 60.0 + Math.cos(Date.now() / 45000) * 15.0 + (Math.random() - 0.5) * 1.0;
-
-      setSensorData({
-        suhu: mockSuhu,
-        kelembaban: mockKelembaban,
-        lastUpdated: new Date()
-      });
-
-      addLog(`RX: '${mockSuhu.toFixed(1)}'`, 'rx', 'sensor/suhu');
-      addLog(`RX: '${mockKelembaban.toFixed(1)}'`, 'rx', 'sensor/kelembaban');
-    }, 6000);
-
-    return () => clearInterval(sensorInterval);
-  }, [simulationActive]);
-
-  // Handle active variation sequencers locally on simulation mode when variasiMode is active
-  useEffect(() => {
-    if (!simulationActive || variasiMode === 0) return;
-
-    let step = 0;
-    const variasiInterval = setInterval(() => {
-      // Simulate physical ESP turnoffs and single active light transitions
-      const simulatedActiveIndex = variasiMode === 1 ? (step % 4) : (3 - (step % 4));
-      
-      setRelays((prev) =>
-        prev.map((r, idx) => ({
-          ...r,
-          state: idx === simulatedActiveIndex
-        }))
-      );
-
-      addLog(`RX: 'Variasi ${variasiMode} | Jeda ${variasiJeda}ms | Relay ${simulatedActiveIndex + 1} ON'`, 'rx', 'kontrol/variasi-siklus');
-      step++;
-    }, variasiJeda);
-
-    return () => {
-      clearInterval(variasiInterval);
-      if (variasiMode === 0) {
-        setRelays((prev) => prev.map((r) => ({ ...r, state: false })));
-      }
-    };
-  }, [simulationActive, variasiMode, variasiJeda]);
+  // Pure hardware MQTT architecture - simulator removed.
 
   return (
     <div className="min-h-screen bg-[#07080c] text-slate-100 flex flex-col font-sans select-none antialiased">
@@ -494,20 +435,6 @@ export default function App() {
 
           {/* Connected state and broker switching dropdown */}
           <div className="flex items-center gap-3 flex-wrap text-xs">
-            {/* Simulation toggle indicator button */}
-            <button
-              id="simulation-mode-toggle"
-              onClick={() => setSimulationActive(!simulationActive)}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-bold uppercase transition-all cursor-pointer border ${
-                simulationActive
-                  ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25'
-                  : 'bg-slate-900 border-slate-800 text-slate-600'
-              }`}
-              title="Toggle simulated sensor feed"
-            >
-              SIM: {simulationActive ? 'ON' : 'OFF'}
-            </button>
-
             {/* Connection badge capsule */}
             <div className={`px-2.5 py-1.5 rounded-full text-[9px] font-sans font-extrabold uppercase tracking-widest border flex items-center gap-1.5 select-none ${
               connectionState === 'connected'
